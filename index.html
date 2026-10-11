@@ -5,101 +5,142 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Nokia Snake | N99</title>
 
-<style>
-  * { box-sizing: border-box; }
 
-<!-- UPCOMING FEATURES POPUP -->
 <style>
   #updatePopup {
     position: fixed;
     inset: 0;
-    z-index: 99999;
-    display: none;
+    z-index: 2147483647;
+    display: flex;
     align-items: center;
     justify-content: center;
-    padding: 18px;
-    background: rgba(0, 0, 0, 0.82);
+    box-sizing: border-box;
+    width: 100%;
+    height: 100%;
+    height: 100dvh;
+    padding: 20px;
+    background: #071009;
+    overflow: auto;
     font-family: monospace;
+    overscroll-behavior: contain;
+  }
+
+  #updatePopup * {
+    box-sizing: border-box;
   }
 
   #updatePopup .popup-box {
     width: 100%;
-    max-width: 360px;
-    padding: 24px 18px;
+    max-width: 390px;
+    padding: 25px 18px;
     text-align: center;
     color: #d7ffb8;
     background: #152719;
-    border: 2px solid #8cff52;
-    border-radius: 14px;
-    box-shadow: 0 0 28px #65ff4260;
-    animation: popupIn 0.35s ease-out;
+    border: 2px solid #9cff57;
+    border-radius: 16px;
+    box-shadow: 0 0 35px #65ff4260;
   }
 
   #updatePopup h2 {
     color: #9cff57;
-    margin-top: 0;
     font-size: 23px;
+    margin: 12px 0;
   }
 
   #updatePopup .feature {
-    padding: 10px;
-    margin: 8px 0;
+    padding: 12px 8px;
+    margin: 9px 0;
     background: #203b27;
     border-radius: 8px;
     text-align: left;
+    font-size: 14px;
   }
 
   #updatePopup .timer {
     color: #9cff57;
+    font-size: 19px;
     font-weight: bold;
-    font-size: 20px;
-    margin: 18px 0;
+    margin: 20px 0;
   }
 
   #updatePopup button {
-    padding: 12px 22px;
-    border: none;
-    border-radius: 7px;
+    width: 100%;
+    padding: 14px;
+    border: 0;
+    border-radius: 8px;
     background: #9cff57;
     color: #142414;
-    font-weight: bold;
+    font-size: 16px;
     font-family: monospace;
-    font-size: 15px;
+    font-weight: bold;
     cursor: pointer;
-  }
-
-  #updatePopup button:hover {
-    background: white;
-  }
-
-  @keyframes popupIn {
-    from { opacity: 0; transform: scale(0.85); }
-    to { opacity: 1; transform: scale(1); }
   }
 </style>
 
-<div id="updatePopup" role="dialog"
-     aria-modal="true" aria-labelledby="updateTitle">
+<div id="updatePopup" role="dialog" aria-modal="true">
   <div class="popup-box">
-    <div style="font-size:42px">🐍</div>
+    <div style="font-size:48px">🐍</div>
 
-    <h2 id="updateTitle">BIG UPDATE INCOMING!</h2>
+    <h2>BIG UPDATE INCOMING!</h2>
+    <p>A major upgrade is coming to your game!</p>
 
-    <p>The game is getting a major upgrade!</p>
+    <div class="feature">
+      👤 Personal Dashboard with Username
+    </div>
 
-    <div class="feature">👤 Personal dashboard with your username</div>
-    <div class="feature">⛶ Full-screen gaming mode</div>
-    <div class="feature">🎮 More exciting features</div>
+    <div class="feature">
+      ⛶ Full-Screen Gaming Mode
+    </div>
+
+    <div class="feature">
+      🎮 Many More Exciting Features
+    </div>
 
     <div class="timer">⏳ COMING IN 1 HOUR</div>
 
-    <p style="font-size:12px;color:#a7c49a">
-      Stay tuned. The next level is coming!
-    </p>
+    <p>Get ready for the next level!</p>
 
-    <button id="closeUpdatePopup">LET'S PLAY!</button>
+    <button id="closeUpdatePopup">
+      LET'S PLAY!
+    </button>
   </div>
 </div>
+
+<script>
+(function () {
+  const popup = document.getElementById("updatePopup");
+  const closeButton = document.getElementById("closeUpdatePopup");
+
+  // Lock the page while the popup is open
+  document.documentElement.style.overflow = "hidden";
+  document.body.style.overflow = "hidden";
+  document.body.style.margin = "0";
+
+  // Hide all existing game content behind the popup
+  Array.from(document.body.children).forEach(function (element) {
+    if (element !== popup && element.tagName !== "SCRIPT") {
+      element.style.setProperty("display", "none", "important");
+    }
+  });
+
+  // Keep popup visible until the user chooses to play
+  closeButton.addEventListener("click", function () {
+    popup.remove();
+
+    Array.from(document.body.children).forEach(function (element) {
+      if (element.tagName !== "SCRIPT") {
+        element.style.removeProperty("display");
+      }
+    });
+
+    document.documentElement.style.overflow = "";
+    document.body.style.overflow = "";
+    document.body.style.margin = "";
+  });
+})();
+</script>
+</body>
+
 
 <script>
 (function () {
