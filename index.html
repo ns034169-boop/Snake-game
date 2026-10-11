@@ -6,6 +6,7 @@
 <title>Nokia Snake | N99</title>
 
 
+<!-- Permanent Announcement Popup -->
 <style>
   #updatePopup {
     position: fixed;
@@ -14,13 +15,13 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    box-sizing: border-box;
     width: 100%;
     height: 100%;
     height: 100dvh;
     padding: 20px;
-    background: #071009;
     overflow: auto;
+    box-sizing: border-box;
+    background: #071009;
     font-family: monospace;
     overscroll-behavior: contain;
   }
@@ -44,7 +45,6 @@
   #updatePopup h2 {
     color: #9cff57;
     font-size: 23px;
-    margin: 12px 0;
   }
 
   #updatePopup .feature {
@@ -61,19 +61,6 @@
     font-size: 19px;
     font-weight: bold;
     margin: 20px 0;
-  }
-
-  #updatePopup button {
-    width: 100%;
-    padding: 14px;
-    border: 0;
-    border-radius: 8px;
-    background: #9cff57;
-    color: #142414;
-    font-size: 16px;
-    font-family: monospace;
-    font-weight: bold;
-    cursor: pointer;
   }
 </style>
 
@@ -98,13 +85,31 @@
 
     <div class="timer">⏳ COMING IN 1 HOUR</div>
 
-    <p>Get ready for the next level!</p>
-
-    <button id="closeUpdatePopup">
-      LET'S PLAY!
-    </button>
+    <p>Stay tuned for the next level!</p>
   </div>
 </div>
+
+<script>
+(function () {
+  document.documentElement.style.overflow = "hidden";
+  document.body.style.overflow = "hidden";
+  document.body.style.margin = "0";
+
+  Array.from(document.body.children).forEach(function (element) {
+    if (
+      element.id !== "updatePopup" &&
+      element.tagName !== "SCRIPT"
+    ) {
+      element.style.setProperty(
+        "display", "none", "important"
+      );
+    }
+  });
+})();
+</script>
+</body>
+
+
 
 <script>
 (function () {
