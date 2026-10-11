@@ -3,409 +3,390 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="theme-color" content="#9bbc0f">
-<title>N99 Snake Game</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#050b08">
+<title>N99 Games</title>
+
 <style>
-:root{--green:#9bbc0f;--dark:#0f380f;--mid:#306230;--light:#c7f464}
-*{box-sizing:border-box}
-body{margin:0;padding:12px 8px 28px;background:#182018;color:var(--light);font-family:monospace;text-align:center}
-.container{width:100%;max-width:600px;margin:auto}
-header{border:3px solid var(--green);padding:14px 8px;margin-bottom:12px;background:var(--dark)}
-h1{margin:0;font-size:clamp(27px,7vw,42px);letter-spacing:3px}
-.subtitle{margin-top:7px;color:var(--green)}
-.panel{border:2px solid var(--green);background:var(--dark);padding:12px;margin:10px 0}
-input,button{font:inherit;border:2px solid var(--green);padding:11px;border-radius:3px}
-input{width:100%;background:#e6f2b3;color:var(--dark);margin:8px 0}
-button{background:var(--green);color:var(--dark);font-weight:bold;cursor:pointer;margin:4px}
-button:active{transform:scale(.97)}
-button:disabled{opacity:.5}
-.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;margin:10px 0}
-.stat{padding:10px 4px;border:1px solid var(--green);background:var(--dark);overflow-wrap:anywhere}
-.stat strong{display:block;color:white;font-size:23px;margin-top:6px}
-#gameCanvas{display:block;width:100%;max-width:560px;height:auto;aspect-ratio:1;margin:10px auto;border:4px solid var(--green);background:var(--green);image-rendering:pixelated;touch-action:none}
-.controls{display:grid;grid-template-columns:repeat(3,65px);justify-content:center;gap:5px;margin:12px auto}
-.controls button{min-height:48px;margin:0}
-.hidden{display:none!important}
-.small{font-size:12px;color:#c4d89a}
-#message{min-height:22px;margin:8px 0}
-footer{margin-top:16px;color:#a6bd77;font-size:12px}
-@media(min-width:500px){body{padding:20px 12px} .panel{padding:16px}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#050b08;color:#d9ffe3;font-family:Arial,sans-serif;overscroll-behavior:none}
+body{min-height:100dvh}
+button,input{font:inherit}
+button{cursor:pointer}
+.screen{position:fixed;inset:0;width:100%;height:100%;height:100dvh;overflow:hidden}
+
+/* Welcome popup */
+#welcomePopup{
+ position:fixed;inset:0;z-index:9999;display:flex;
+ align-items:center;justify-content:center;padding:22px;
+ background:rgba(0,5,2,.91);backdrop-filter:blur(10px);
+ transition:opacity .35s ease,visibility .35s ease
+}
+#welcomePopup.hide{opacity:0;visibility:hidden;pointer-events:none}
+.welcome-card{
+ width:min(100%,360px);padding:24px;
+ border:1px solid #35ff79;border-radius:20px;
+ background:linear-gradient(145deg,#102719,#030906);
+ box-shadow:0 0 35px rgba(53,255,121,.18);
+ color:#e0ffe8;animation:popupIn .4s ease
+}
+@keyframes popupIn{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+.welcome-title{text-align:center;color:#55ff88;font-size:26px;font-weight:900;letter-spacing:3px}
+.welcome-subtitle{text-align:center;color:#a8c9b1;font-size:13px;margin:8px 0 20px}
+.game-link{
+ display:flex;justify-content:space-between;align-items:center;gap:10px;
+ margin-top:10px;padding:13px;border:1px solid #245b35;
+ border-radius:12px;color:#e0ffe8;text-decoration:none;background:#0b1c11
+}
+.game-link small{display:block;margin-top:4px;color:#91b79c}
+.game-link.disabled{opacity:.6;cursor:default}
+.welcome-timer{margin-top:20px;color:#55ff88;text-align:center;font-size:12px}
+
+/* Username screen */
+#login{
+ display:flex;align-items:center;justify-content:center;padding:24px;
+ background:radial-gradient(ellipse at 20% 20%,#123c28 0%,transparent 45%),
+ radial-gradient(ellipse at 80% 80%,#113a31 0%,transparent 45%),#030806
+}
+#login::before{
+ content:"";position:absolute;inset:-50%;
+ background:repeating-linear-gradient(0deg,transparent 0,transparent 38px,rgba(69,255,133,.08) 39px,transparent 41px);
+ animation:scan 9s linear infinite;pointer-events:none
+}
+#login::after{
+ content:"";position:absolute;width:75vmax;height:75vmax;border:1px solid rgba(66,255,134,.13);
+ border-radius:50%;box-shadow:0 0 70px rgba(35,255,118,.08),inset 0 0 70px rgba(35,255,118,.06);
+ animation:pulse 5s ease-in-out infinite alternate;pointer-events:none
+}
+@keyframes scan{from{transform:translateY(0) rotate(-8deg)}to{transform:translateY(120px) rotate(-8deg)}}
+@keyframes pulse{from{transform:scale(.85);opacity:.35}to{transform:scale(1.15);opacity:.9}}
+.login-box{position:relative;z-index:2;width:min(100%,360px);display:flex;flex-direction:column;gap:14px;text-align:center}
+.created{margin-bottom:8px;color:#9bffb6;font-size:14px;letter-spacing:3px;text-transform:uppercase;text-shadow:0 0 15px #35ff78}
+#username{
+ width:100%;min-height:54px;padding:14px 16px;color:#e4ffeb;
+ background:rgba(0,15,7,.8);border:1px solid #2cff72;border-radius:12px;
+ outline:none;text-align:center;font-size:17px;touch-action:auto
+}
+#username::placeholder{color:#8aa995}
+#username:focus{box-shadow:0 0 22px rgba(44,255,114,.2)}
+#startBtn{width:100%;min-height:54px;border:0;border-radius:12px;background:#39ff78;color:#041108;font-weight:800;letter-spacing:2px}
+#startBtn:active{transform:scale(.98)}
+
+/* Game */
+#gameScreen{
+ display:none;flex-direction:column;align-items:center;justify-content:space-evenly;
+ gap:8px;padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom));
+ background:radial-gradient(ellipse at top,#10271a,transparent 65%),#050b08
+}
+.topbar{width:min(100%,560px);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.brand{color:#45ff82;font-size:19px;font-weight:900;letter-spacing:2px;text-shadow:0 0 12px #16b94e}
+.score-area{display:flex;gap:8px}
+.score-card{min-width:76px;padding:8px 10px;border:1px solid #214c30;border-radius:10px;background:rgba(4,18,9,.8);text-align:center}
+.score-label{color:#8cb99a;font-size:10px;letter-spacing:1px}
+.score-value{margin-top:3px;color:#6cff96;font-size:19px;font-weight:bold}
+.board-wrap{
+ position:relative;width:min(92vw,56dvh,560px);aspect-ratio:1;
+ border:2px solid #36e96e;border-radius:8px;overflow:hidden;
+ background:#020704;box-shadow:0 0 24px rgba(37,255,104,.12);flex-shrink:1
+}
+#board{display:block;width:100%;height:100%;touch-action:none}
+#message{
+ position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
+ justify-content:center;gap:14px;background:rgba(0,8,3,.86);text-align:center;padding:20px
+}
+#messageText{color:#8cffab;font-size:22px;font-weight:bold;text-shadow:0 0 15px #22b951}
+.small-btn{min-height:42px;padding:10px 16px;color:#d9ffe3;background:#10291a;border:1px solid #36d966;border-radius:10px;font-weight:bold}
+.controls{width:min(100%,300px);display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,52px);gap:7px;touch-action:none}
+.control-btn{border:1px solid #267c43;border-radius:12px;color:#8dffac;background:linear-gradient(145deg,#102719,#07150c);font-size:24px;font-weight:bold;user-select:none}
+.control-btn:active{background:#1d6b36}
+.up{grid-column:2;grid-row:1}.left{grid-column:1;grid-row:2}.down{grid-column:2;grid-row:2}.right{grid-column:3;grid-row:2}
+.bottom-bar{width:min(100%,560px);display:flex;align-items:center;justify-content:space-between;gap:8px;color:#83a991;font-size:12px}
+#liveCount{color:#75ffa0}
+@media(max-height:650px){
+ #gameScreen{gap:4px}.board-wrap{width:min(75vw,45dvh,480px)}
+ .controls{grid-template-rows:repeat(2,40px);width:min(100%,240px)}
+ .control-btn{font-size:20px}.score-card{padding:5px 8px}
+}
 </style>
 </head>
 <body>
-<div class="container">
-<header>
-<h1>N99 SNAKE</h1>
-<div class="subtitle">★ CLASSIC NOKIA ARCADE ★</div>
-<div class="small">VERSION 3.1 · LIVE PLAYERS</div>
-</header>
 
-<section id="loginPanel" class="panel">
-<h2>PLAYER LOGIN</h2>
-<p>Enter your username to play</p>
-<input id="usernameInput" maxlength="18" placeholder="Your username" autocomplete="nickname">
-<button id="loginBtn">ENTER GAME</button>
-<p class="small">Best score is saved on this device.</p>
+<!-- Welcome popup: 6 seconds -->
+<div id="welcomePopup">
+ <div class="welcome-card">
+  <div class="welcome-title">N99 GAMES</div>
+  <div class="welcome-subtitle">Welcome to your gaming zone!</div>
+
+  <a class="game-link" href="#snake" id="snakeLink">
+   <span>🐍 <b>Snake Game</b><small>Available now</small></span>
+   <span>▶</span>
+  </a>
+
+  <div class="game-link disabled">
+   <span>🐦 <b>Flappy Bird</b><small>Coming soon</small></span>
+   <span>🔒</span>
+  </div>
+
+  <div class="game-link disabled">
+   <span>🎲 <b>Ludo</b><small>Coming soon</small></span>
+   <span>🔒</span>
+  </div>
+
+  <div class="welcome-timer" id="welcomeTimer">Continuing in 6 seconds…</div>
+ </div>
+</div>
+
+<!-- Username entry -->
+<section id="login" class="screen">
+ <form id="loginForm" class="login-box">
+  <div class="created">Created by Nikhil</div>
+  <input id="username" type="text" maxlength="18" placeholder="Enter username" autocomplete="nickname" required>
+  <button id="startBtn" type="submit">START</button>
+ </form>
 </section>
 
-<section id="gamePanel" class="hidden">
-<div class="panel">
-<div>WELCOME, <strong id="playerName">PLAYER</strong></div>
-<div class="stats">
-<div class="stat">CURRENT SCORE<strong id="score">0</strong></div>
-<div class="stat">BEST SCORE<strong id="bestScore">0</strong></div>
-<div class="stat">PLAYERS ONLINE<strong id="onlineCount">0</strong></div>
-<div class="stat">GAME STATUS<strong id="status">READY</strong></div>
-</div>
-</div>
+<!-- Snake Game -->
+<section id="gameScreen" class="screen">
+ <div class="topbar">
+  <div class="brand">N99 SNAKE</div>
+  <div class="score-area">
+   <div class="score-card"><div class="score-label">SCORE</div><div class="score-value" id="score">0</div></div>
+   <div class="score-card"><div class="score-label">BEST</div><div class="score-value" id="best">0</div></div>
+  </div>
+ </div>
 
-<div class="panel">
-<canvas id="gameCanvas" width="560" height="560"></canvas>
-<div id="message">Press START to play!</div>
-<button id="startBtn">START GAME</button>
-<button id="pauseBtn" disabled>PAUSE</button>
-<button id="resetBtn">RESTART</button>
-<button id="fullBtn">FULLSCREEN</button>
-<div class="controls">
-<span></span><button data-dir="up" aria-label="Up">▲</button><span></span>
-<button data-dir="left" aria-label="Left">◀</button>
-<button data-dir="down" aria-label="Down">▼</button>
-<button data-dir="right" aria-label="Right">▶</button>
-</div>
-<p class="small">Arrow keys, WASD, buttons or swipe.</p>
-<button id="changeUserBtn">CHANGE USER</button>
-</div>
+ <div class="board-wrap">
+  <canvas id="board" width="560" height="560"></canvas>
+  <div id="message">
+   <div id="messageText">READY?</div>
+   <button class="small-btn" id="playBtn">PLAY</button>
+  </div>
+ </div>
+
+ <div class="controls">
+  <button class="control-btn up" data-dir="up" aria-label="Up">▲</button>
+  <button class="control-btn left" data-dir="left" aria-label="Left">◀</button>
+  <button class="control-btn down" data-dir="down" aria-label="Down">▼</button>
+  <button class="control-btn right" data-dir="right" aria-label="Right">▶</button>
+ </div>
+
+ <div class="bottom-bar">
+  <span id="playerName"></span>
+  <span>LIVE: <b id="liveCount">—</b></span>
+  <button class="small-btn" id="fullBtn">⛶</button>
+ </div>
 </section>
 
-<footer>N99 SNAKE · PLAY FAIR · HAVE FUN</footer>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-/* SUPABASE CONFIGURATION */
-const SUPABASE_URL = "https://udqhsxdmpmpgoumsdskg.supabase.co";
-const SUPABASE_KEY = "sb_publishable_sjoX7lvLQEPM8izWabFayw_-vlOVVX6";
+const SUPABASE_URL="https://udqhsxdmpmpgoumsdskg.supabase.co";
+const SUPABASE_KEY="sb_publishable_sjoX7lvLQEPM8izWabFayw_-vlOVVX6";
 
-let sb = null;
-try {
-  if (window.supabase) {
-    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  }
-} catch(e) {
-  console.error("Supabase setup error:", e);
-}
+const popup=document.getElementById("welcomePopup");
+const timerText=document.getElementById("welcomeTimer");
+const login=document.getElementById("login");
+const loginForm=document.getElementById("loginForm");
+const usernameInput=document.getElementById("username");
+const gameScreen=document.getElementById("gameScreen");
+const canvas=document.getElementById("board");
+const ctx=canvas.getContext("2d");
+const message=document.getElementById("message");
+const messageText=document.getElementById("messageText");
 
-const $ = id => document.getElementById(id);
-const canvas = $("gameCanvas");
-const ctx = canvas.getContext("2d");
-const GRID = 20;
-const CELL = canvas.width / GRID;
+const SIZE=20,CELL=28,SPEED=170;
+let username="",snake=[],food={x:10,y:10};
+let direction={x:1,y:0},nextDirection={x:1,y:0};
+let score=0,best=0,running=false,gameTimer=null;
+let presenceTimer=null,countTimer=null,sessionId="";
 
-let username = "", score = 0, bestScore = 0;
-let snake = [], food = {x:10,y:10};
-let direction = {x:1,y:0}, nextDirection = {x:1,y:0};
-let running = false, gameOver = false;
-let gameLoop = null, heartbeat = null;
+/* Welcome popup disappears automatically after 6 seconds */
+let popupSeconds=6;
+const popupCountdown=setInterval(()=>{
+ popupSeconds--;
+ if(popupSeconds<=0){
+  clearInterval(popupCountdown);
+  popup.classList.add("hide");
+  return;
+ }
+ timerText.textContent="Continuing in "+popupSeconds+" seconds…";
+},1000);
 
-const sessionId = (() => {
-  try { return crypto.randomUUID(); }
-  catch(e) { return "n99-" + Date.now() + "-" + Math.random().toString(36).slice(2); }
-})();
-
-/* LOGIN */
-$("loginBtn").addEventListener("click", login);
-$("usernameInput").addEventListener("keydown", e => {
-  if(e.key === "Enter") login();
+/* Tap Snake Game to dismiss the popup immediately */
+document.getElementById("snakeLink").addEventListener("click",e=>{
+ e.preventDefault();
+ clearInterval(popupCountdown);
+ popup.classList.add("hide");
 });
 
-function login() {
-  const v = $("usernameInput").value.trim();
-  if(!v) { alert("Please enter a username!"); return; }
-
-  username = v.slice(0,18);
-  localStorage.setItem("n99_username", username);
-  $("playerName").textContent = username;
-  $("loginPanel").classList.add("hidden");
-  $("gamePanel").classList.remove("hidden");
-
-  bestScore = Number(localStorage.getItem("n99_best_" + username)) || 0;
-  $("bestScore").textContent = bestScore;
-  resetGame();
+function makeId(){
+ if(crypto.randomUUID)return crypto.randomUUID();
+ return "n99-"+Date.now()+"-"+Math.random().toString(36).slice(2);
 }
-const saved = localStorage.getItem("n99_username");
-if(saved) $("usernameInput").value = saved;
-
-/* GAME */
-function resetGame() {
-  stopGame();
-  score = 0;
-  snake = [{x:6,y:10},{x:5,y:10},{x:4,y:10}];
-  direction = {x:1,y:0};
-  nextDirection = {x:1,y:0};
-  gameOver = false;
-
-  $("score").textContent = "0";
-  $("status").textContent = "READY";
-  $("message").textContent = "Press START to play!";
-  $("startBtn").disabled = false;
-  $("pauseBtn").disabled = true;
-
-  placeFood();
-  draw();
+function setFullscreen(){
+ if(!document.fullscreenElement&&document.documentElement.requestFullscreen){
+  document.documentElement.requestFullscreen().catch(()=>{});
+ }
 }
+loginForm.addEventListener("submit",e=>{
+ e.preventDefault();
+ username=usernameInput.value.trim();
+ if(!username){usernameInput.focus();return}
+ document.getElementById("playerName").textContent=username;
+ best=Number(localStorage.getItem("n99-best-"+username.toLowerCase())||0);
+ document.getElementById("best").textContent=best;
+ login.style.display="none";
+ gameScreen.style.display="flex";
+ setFullscreen();
+ resetGame();
+ showMessage("READY?","PLAY");
+ startCountPolling();
+});
+document.getElementById("fullBtn").addEventListener("click",()=>{
+ if(!document.fullscreenElement)setFullscreen();
+ else if(document.exitFullscreen)document.exitFullscreen().catch(()=>{});
+});
+document.getElementById("playBtn").addEventListener("click",startGame);
 
-function placeFood() {
-  do {
-    food = {
-      x:Math.floor(Math.random()*GRID),
-      y:Math.floor(Math.random()*GRID)
-    };
-  } while(snake.some(p => p.x===food.x && p.y===food.y));
+function resetGame(){
+ stopGame();
+ snake=[{x:8,y:10},{x:7,y:10},{x:6,y:10}];
+ direction={x:1,y:0};nextDirection={x:1,y:0};
+ score=0;document.getElementById("score").textContent="0";
+ makeFood();draw();
 }
-
-function startGame() {
-  if(running) return;
-  if(gameOver) resetGame();
-
-  running = true;
-  $("status").textContent = "PLAYING";
-  $("message").textContent = "Good luck, " + username + "!";
-  $("startBtn").disabled = true;
-  $("pauseBtn").disabled = false;
-
-  /* Slower snake: 170 milliseconds per move */
-  gameLoop = setInterval(tick,170);
-  startPresence();
+function showMessage(text,buttonText){
+ messageText.textContent=text;
+ document.getElementById("playBtn").textContent=buttonText;
+ message.style.display="flex";
 }
-
-function stopGame() {
-  running = false;
-  if(gameLoop) clearInterval(gameLoop);
-  gameLoop = null;
-  stopPresence();
-  $("startBtn").disabled = false;
-  $("pauseBtn").disabled = true;
+function startGame(){
+ if(running)return;
+ resetGame();running=true;message.style.display="none";
+ gameTimer=setInterval(tick,SPEED);startPresence();
 }
-
-function pauseGame() {
-  if(!running) return;
-  stopGame();
-  $("status").textContent = "PAUSED";
-  $("message").textContent = "Paused. Press START to continue.";
+function stopGame(){
+ running=false;
+ if(gameTimer)clearInterval(gameTimer);
+ gameTimer=null;stopPresence();
 }
-
-function tick() {
-  direction = nextDirection;
-
-  const head = {
-    x:snake[0].x + direction.x,
-    y:snake[0].y + direction.y
-  };
-
-  /* WALL WRAP: exit one edge and enter from the opposite edge */
-  head.x = (head.x + GRID) % GRID;
-  head.y = (head.y + GRID) % GRID;
-
-  const eating = head.x===food.x && head.y===food.y;
-  const body = eating ? snake : snake.slice(0,-1);
-
-  if(body.some(p => p.x===head.x && p.y===head.y)) {
-    stopGame();
-    gameOver = true;
-    $("status").textContent = "GAME OVER";
-    $("message").textContent = "Game over! Score: " + score;
-    draw();
-    return;
+function makeFood(){
+ let tries=0;
+ do{
+  food={x:Math.floor(Math.random()*SIZE),y:Math.floor(Math.random()*SIZE)};
+  tries++;
+ }while(snake.some(p=>p.x===food.x&&p.y===food.y)&&tries<500);
+}
+function tick(){
+ direction=nextDirection;
+ const head={x:(snake[0].x+direction.x+SIZE)%SIZE,y:(snake[0].y+direction.y+SIZE)%SIZE};
+ const eating=head.x===food.x&&head.y===food.y;
+ const body=eating?snake:snake.slice(0,-1);
+ if(body.some(p=>p.x===head.x&&p.y===head.y)){endGame();return}
+ snake.unshift(head);
+ if(eating){
+  score+=10;document.getElementById("score").textContent=score;
+  if(score>best){
+   best=score;document.getElementById("best").textContent=best;
+   localStorage.setItem("n99-best-"+username.toLowerCase(),best);
   }
-
-  snake.unshift(head);
-
-  if(eating) {
-    score += 10;
-    $("score").textContent = score;
-
-    if(score > bestScore) {
-      bestScore = score;
-      $("bestScore").textContent = bestScore;
-      localStorage.setItem("n99_best_" + username, bestScore);
-    }
-
-    if(snake.length === GRID*GRID) {
-      stopGame();
-      gameOver = true;
-      $("status").textContent = "YOU WIN";
-      $("message").textContent = "Board completed!";
-      draw();
-      return;
-    }
-    placeFood();
-  } else {
-    snake.pop();
-  }
-  draw();
+  makeFood();
+ }else snake.pop();
+ draw();
 }
-
-function setDirection(name) {
-  const dirs = {
-    up:{x:0,y:-1}, down:{x:0,y:1},
-    left:{x:-1,y:0}, right:{x:1,y:0}
-  };
-  const d = dirs[name];
-  if(!d || (d.x===-direction.x && d.y===-direction.y)) return;
-  nextDirection = d;
+function endGame(){stopGame();showMessage("GAME OVER · "+score,"PLAY AGAIN")}
+function draw(){
+ ctx.fillStyle="#020704";ctx.fillRect(0,0,560,560);
+ ctx.strokeStyle="rgba(56,255,116,.055)";ctx.lineWidth=1;
+ for(let i=0;i<=SIZE;i++){
+  ctx.beginPath();ctx.moveTo(i*CELL,0);ctx.lineTo(i*CELL,560);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(0,i*CELL);ctx.lineTo(560,i*CELL);ctx.stroke();
+ }
+ ctx.fillStyle="#ff526c";ctx.shadowColor="#ff244d";ctx.shadowBlur=16;
+ ctx.beginPath();ctx.arc(food.x*CELL+CELL/2,food.y*CELL+CELL/2,CELL*.32,0,Math.PI*2);ctx.fill();
+ ctx.shadowBlur=0;
+ snake.forEach((p,i)=>{
+  const pad=2;ctx.fillStyle=i===0?"#b7ffca":"#39e96c";
+  ctx.shadowColor="#28ff66";ctx.shadowBlur=i===0?12:4;
+  ctx.beginPath();ctx.roundRect(p.x*CELL+pad,p.y*CELL+pad,CELL-pad*2,CELL-pad*2,5);ctx.fill();
+ });
+ ctx.shadowBlur=0;
 }
-
-document.querySelectorAll("[data-dir]").forEach(b => {
-  b.addEventListener("click", () => setDirection(b.dataset.dir));
+function changeDirection(dir){
+ const dirs={up:{x:0,y:-1},down:{x:0,y:1},left:{x:-1,y:0},right:{x:1,y:0}};
+ const d=dirs[dir];if(!d)return;
+ if(d.x===-direction.x&&d.y===-direction.y)return;
+ nextDirection=d;
+}
+document.querySelectorAll("[data-dir]").forEach(btn=>{
+ btn.addEventListener("pointerdown",e=>{e.preventDefault();changeDirection(btn.dataset.dir)});
+});
+document.addEventListener("keydown",e=>{
+ const keys={ArrowUp:"up",w:"up",ArrowDown:"down",s:"down",ArrowLeft:"left",a:"left",ArrowRight:"right",d:"right"};
+ if(keys[e.key]){e.preventDefault();changeDirection(keys[e.key])}
+ if(e.key===" "&&!running&&gameScreen.style.display==="flex")startGame();
+});
+let touchX=0,touchY=0;
+canvas.addEventListener("pointerdown",e=>{touchX=e.clientX;touchY=e.clientY});
+canvas.addEventListener("pointerup",e=>{
+ const dx=e.clientX-touchX,dy=e.clientY-touchY;
+ if(Math.max(Math.abs(dx),Math.abs(dy))<15)return;
+ if(Math.abs(dx)>Math.abs(dy))changeDirection(dx>0?"right":"left");
+ else changeDirection(dy>0?"down":"up");
 });
 
-document.addEventListener("keydown", e => {
-  const keys = {
-    ArrowUp:"up",w:"up",W:"up",
-    ArrowDown:"down",s:"down",S:"down",
-    ArrowLeft:"left",a:"left",A:"left",
-    ArrowRight:"right",d:"right",D:"right"
-  };
-  if(keys[e.key]) {
-    e.preventDefault();
-    setDirection(keys[e.key]);
-  }
-  if(e.code==="Space" && !$("gamePanel").classList.contains("hidden")) {
-    e.preventDefault();
-    running ? pauseGame() : startGame();
-  }
-});
-
-let tx=0, ty=0;
-canvas.addEventListener("touchstart", e => {
-  tx=e.changedTouches[0].clientX;
-  ty=e.changedTouches[0].clientY;
-},{passive:true});
-
-canvas.addEventListener("touchend", e => {
-  const dx=e.changedTouches[0].clientX-tx;
-  const dy=e.changedTouches[0].clientY-ty;
-  if(Math.max(Math.abs(dx),Math.abs(dy))<20) return;
-  setDirection(Math.abs(dx)>Math.abs(dy)
-    ? (dx>0?"right":"left")
-    : (dy>0?"down":"up"));
-},{passive:true});
-
-function draw() {
-  ctx.fillStyle="#9bbc0f";
-  ctx.fillRect(0,0,canvas.width,canvas.height);
-
-  ctx.strokeStyle="rgba(15,56,15,.10)";
-  for(let i=0;i<=GRID;i++) {
-    ctx.beginPath();
-    ctx.moveTo(i*CELL,0);
-    ctx.lineTo(i*CELL,canvas.height);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(0,i*CELL);
-    ctx.lineTo(canvas.width,i*CELL);
-    ctx.stroke();
-  }
-
-  ctx.fillStyle="#d92525";
-  ctx.fillRect(food.x*CELL+3,food.y*CELL+3,CELL-6,CELL-6);
-
-  snake.forEach((p,i) => {
-    ctx.fillStyle=i===0?"#0f380f":"#306230";
-    ctx.fillRect(p.x*CELL+1,p.y*CELL+1,CELL-2,CELL-2);
+/* Supabase live-player count */
+async function supabaseRequest(path,options={}){
+ try{
+  return await fetch(SUPABASE_URL+"/rest/v1/"+path,{
+   ...options,
+   headers:{
+    apikey:SUPABASE_KEY,
+    Authorization:"Bearer "+SUPABASE_KEY,
+    "Content-Type":"application/json",
+    ...options.headers
+   }
   });
+ }catch(e){return null}
 }
-
-/* BUTTONS */
-$("startBtn").addEventListener("click",startGame);
-$("pauseBtn").addEventListener("click",pauseGame);
-$("resetBtn").addEventListener("click",resetGame);
-
-$("changeUserBtn").addEventListener("click",() => {
-  stopGame();
-  username = "";
-  $("gamePanel").classList.add("hidden");
-  $("loginPanel").classList.remove("hidden");
-  $("usernameInput").focus();
+async function updatePresence(){
+ if(!running||!sessionId)return;
+ await supabaseRequest("active_games?on_conflict=session_id",{
+  method:"POST",
+  headers:{Prefer:"resolution=merge-duplicates,return=minimal"},
+  body:JSON.stringify({session_id:sessionId,started_at:new Date().toISOString(),last_seen:new Date().toISOString()})
+ });
+}
+function startPresence(){
+ stopPresence();sessionId=makeId();updatePresence();
+ presenceTimer=setInterval(updatePresence,15000);
+}
+async function stopPresence(){
+ if(presenceTimer)clearInterval(presenceTimer);
+ presenceTimer=null;
+ const oldId=sessionId;sessionId="";
+ if(oldId)await supabaseRequest("active_games?session_id=eq."+encodeURIComponent(oldId),{
+  method:"DELETE",headers:{Prefer:"return=minimal"}
+ });
+}
+async function updateLiveCount(){
+ const since=new Date(Date.now()-45000).toISOString();
+ const res=await supabaseRequest("active_games?select=session_id&last_seen=gte."+encodeURIComponent(since));
+ if(res&&res.ok){
+  const rows=await res.json();
+  document.getElementById("liveCount").textContent=rows.length;
+ }
+}
+function startCountPolling(){
+ updateLiveCount();
+ if(countTimer)clearInterval(countTimer);
+ countTimer=setInterval(updateLiveCount,10000);
+}
+window.addEventListener("pagehide",()=>{
+ if(!sessionId)return;
+ fetch(SUPABASE_URL+"/rest/v1/active_games?session_id=eq."+encodeURIComponent(sessionId),{
+  method:"DELETE",keepalive:true,
+  headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+SUPABASE_KEY}
+ }).catch(()=>{});
 });
-
-$("fullBtn").addEventListener("click",async() => {
-  try {
-    if(!document.fullscreenElement) {
-      await document.documentElement.requestFullscreen();
-    } else {
-      await document.exitFullscreen();
-    }
-  } catch(e) {
-    $("message").textContent="Fullscreen isn't supported by this browser.";
-  }
-});
-
-/* SUPABASE LIVE PLAYER COUNT */
-async function startPresence() {
-  if(!sb || !running) return;
-  await sendHeartbeat();
-  if(heartbeat) clearInterval(heartbeat);
-  heartbeat = setInterval(() => {
-    if(running) sendHeartbeat();
-  },15000);
-}
-
-async function sendHeartbeat() {
-  if(!sb || !running) return;
-  const {error} = await sb.from("active_games").upsert({
-    session_id:sessionId,
-    last_seen:new Date().toISOString()
-  },{onConflict:"session_id"});
-  if(error) console.error("Heartbeat error:",error.message);
-}
-
-async function stopPresence() {
-  if(heartbeat) clearInterval(heartbeat);
-  heartbeat = null;
-  if(sb) {
-    const {error} = await sb.from("active_games")
-      .delete().eq("session_id",sessionId);
-    if(error) console.warn("Presence cleanup:",error.message);
-  }
-}
-
-async function updateOnlineCount() {
-  if(!sb) {
-    $("onlineCount").textContent="—";
-    return;
-  }
-  const cutoff = new Date(Date.now()-45000).toISOString();
-  const {count,error} = await sb.from("active_games")
-    .select("session_id",{count:"exact",head:true})
-    .gt("last_seen",cutoff);
-
-  if(error) {
-    console.error("Count error:",error.message);
-    $("onlineCount").textContent="!";
-  } else {
-    $("onlineCount").textContent=count ?? 0;
-  }
-}
-
-updateOnlineCount();
-setInterval(updateOnlineCount,10000);
-
-window.addEventListener("pagehide",() => {
-  if(!sb) return;
-  fetch(SUPABASE_URL+"/rest/v1/active_games?session_id=eq."+encodeURIComponent(sessionId),{
-    method:"DELETE",
-    keepalive:true,
-    headers:{
-      "apikey":SUPABASE_KEY,
-      "Authorization":"Bearer "+SUPABASE_KEY
-    }
-  }).catch(()=>{});
-});
-
-resetGame();
 </script>
 </body>
 </html>
