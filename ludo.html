@@ -1,1 +1,263 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#07111f">
+<title>N99 Games — Ludo</title>
+<style>
+:root {
+  --bg:#07111f; --panel:#122238; --green:#39ff88;
+  --red:#f04455; --yellow:#ffd83d; --blue:#328cf0;
+}
+* { box-sizing:border-box; -webkit-tap-highlight-color:transparent }
+html,body { margin:0; width:100%; min-height:100%; background:var(--bg); color:white; font-family:system-ui,Arial,sans-serif }
+body { min-height:100dvh; overflow-x:hidden }
+button,select { font:inherit; touch-action:manipulation; cursor:pointer }
+#app { min-height:100dvh; padding:env(safe-area-inset-top) 10px env(safe-area-inset-bottom); background:radial-gradient(ellipse at top,#173a4a,#07111f 65%); display:flex; flex-direction:column; align-items:center }
+header { width:min(100%,560px); display:flex; justify-content:space-between; align-items:center; padding:12px 2px }
+.logo { font-size:24px; font-weight:1000; letter-spacing:1px; text-shadow:0 0 14px #39ff8870 }
+.logo span { color:var(--green) }
+.tag { font-size:11px; border:1px solid #ffffff30; border-radius:30px; padding:6px 9px; color:#baffd5 }
+.controls { width:min(100%,560px); display:flex; gap:7px; margin-bottom:9px; flex-wrap:wrap }
+button,select { border:1px solid #ffffff24; border-radius:11px; padding:10px; background:#1b3048; color:white; font-weight:800; font-size:12px }
+.mode { flex:1 }
+.mode.active { color:#9bffc0; background:#12412e; border-color:#39ff88 }
+#players { max-width:115px }
+#status { width:min(100%,560px); font-size:13px; font-weight:800; padding:5px 2px 9px; min-height:32px }
+.board-wrap { width:min(100%,560px,calc(100dvh - 245px)); min-width:0; margin:auto 0 0; }
+canvas { display:block; width:100%; aspect-ratio:1; border-radius:13px; border:2px solid #ffffff3b; box-shadow:0 12px 36px #0008; touch-action:manipulation }
+.bottom { width:min(100%,560px); display:flex; gap:9px; padding:10px 0; align-items:stretch }
+.dicebox { flex:1; display:flex; align-items:center; gap:11px; min-width:0; border:1px solid #ffffff20; background:#122238; border-radius:14px; padding:9px }
+#die { width:51px; height:51px; display:grid; place-items:center; flex-shrink:0; color:#101827; background:#fff; border-radius:12px; font-size:32px; box-shadow:inset 0 -4px #d0d9e4; }
+#die.roll { animation:shake .12s infinite alternate }
+@keyframes shake { to { transform:rotate(9deg) scale(1.04) } }
+#roll { min-width:94px; background:linear-gradient(135deg,#55ff9c,#0bd477); color:#062015; border:0; font-size:14px }
+#roll:disabled { opacity:.45 }
+#hint { font-size:11px; color:#a9bbd0; line-height:1.4 }
+#choices { display:flex; gap:5px; flex-wrap:wrap; margin-top:5px }
+.choice { padding:5px 8px; font-size:11px; background:#263d59 }
+footer { width:min(100%,560px); display:flex; justify-content:space-between; font-size:10px; color:#91a5be; padding-bottom:8px }
+.overlay { position:fixed; inset:0; z-index:10; display:flex; justify-content:center; align-items:center; padding:16px; background:#030914ed; backdrop-filter:blur(8px); }
+.hidden { display:none!important }
+.dialog { width:min(100%,380px); padding:23px 20px; border:1px solid #39ff8860; border-radius:23px; background:linear-gradient(155deg,#173447,#091321); box-shadow:0 0 45px #39ff8818; animation:appear .35s ease-out }
+@keyframes appear { from { opacity:0; transform:translateY(12px) scale(.96) } to { opacity:1; transform:none } }
+.dialog h1 { font-size:clamp(29px,9vw,42px); text-align:center; margin:0; letter-spacing:1px }
+.dialog h1 span { color:var(--green) }
+.dialog h2 { font-size:22px; margin:12px 0 6px }
+.dialog p { color:#b2c3d6; font-size:13px; line-height:1.5 }
+.dialog label { display:block; font-size:12px; font-weight:800; margin:12px 0 6px }
+.dialog select { width:100%; font-size:14px; padding:12px }
+.primary { display:block; width:100%; margin-top:15px; padding:13px; color:#052014; background:linear-gradient(135deg,#55ff9c,#0bd477); border:0; font-size:14px }
+.loading { height:5px; margin-top:20px; background:#26394a; border-radius:9px; overflow:hidden }
+.loading div { height:100%; background:var(--green); animation:loading 6s linear forwards }
+@keyframes loading { from{width:0}to{width:100%} }
+@media(max-height:680px) {
+ header { padding:5px 2px }
+ .board-wrap { width:min(100%,calc(100dvh - 205px),460px) }
+ .controls { margin-bottom:2px }
+ .bottom { padding:5px 0 }
+ #die { width:43px;height:43px;font-size:27px }
+}
+</style>
+</head>
+<body>
+<div id="app">
+<header><div class="logo">N99 <span>GAMES</span></div><div class="tag">🎲 LUDO</div><button id="home">⌂ Games</button></header>
+<div class="controls">
+  <button id="computer" class="mode active">🤖 vs Computer</button>
+  <button id="local" class="mode">👥 Same Phone</button>
+  <select id="players" class="hidden" aria-label="Number of players"><option value="2">2 Players</option><option value="3">3 Players</option><option value="4" selected>4 Players</option></select>
+  <button id="new">↻ New</button>
+</div>
+<div id="status">Roll the dice to start.</div>
+<div class="board-wrap"><canvas id="board" width="600" height="600"></canvas></div>
+<div class="bottom">
+  <div class="dicebox"><div id="die">⚄</div><div style="min-width:0"><b id="turn">RED'S TURN</b><div id="hint">Roll the dice to move</div><div id="choices"></div></div></div>
+  <button id="roll">ROLL<br>DICE</button>
+</div>
+<footer><span>★ Safe cells · Capture · Win</span><span>Created by Nikhil</span></footer>
+</div>
+
+<div class="overlay" id="welcome">
+  <div class="dialog" style="text-align:center">
+    <h1>N99 <span>GAMES</span></h1><h2>LET'S PLAY LUDO</h2>
+    <p>Four colours. One champion. Get ready!</p>
+    <div class="loading"><div></div></div><p>Loading game…</p>
+  </div>
+</div>
+<div class="overlay hidden" id="setup">
+  <div class="dialog">
+    <h1 style="font-size:29px">N99 <span>GAMES</span></h1>
+    <h2>Ready to roll? 🎲</h2>
+    <p>Computer mode: you against three CPU players. Same Phone: 2–4 players take turns on this device.</p>
+    <label for="setupMode">GAME MODE</label>
+    <select id="setupMode"><option value="computer">🤖 Player vs Computer</option><option value="local">👥 Same Phone Multiplayer</option></select>
+    <div id="countWrap"><label for="setupCount">NUMBER OF PLAYERS</label><select id="setupCount"><option value="2">2 Players</option><option value="3">3 Players</option><option value="4" selected>4 Players</option></select></div>
+    <button class="primary" id="start">START GAME</button>
+    <p>Roll a 6 to leave base. Star cells are safe. You need an exact roll to finish.</p>
+  </div>
+</div>
+<div class="overlay hidden" id="winner">
+  <div class="dialog" style="text-align:center"><h1>🏆</h1><h2 id="winnerTitle">You win!</h2><p id="winnerText">All four tokens reached home.</p><button class="primary" id="again">PLAY AGAIN</button><button id="close">Back to board</button></div>
+</div>
+
+<script>
+(() => {
+'use strict';
+const $=id=>document.getElementById(id), canvas=$('board'),ctx=canvas.getContext('2d');
+const C=[
+{name:'RED',hex:'#f04455',light:'#ffb8c0',start:0},
+{name:'GREEN',hex:'#20bf73',light:'#a8f4cb',start:13},
+{name:'YELLOW',hex:'#f4c62e',light:'#fff0a0',start:26},
+{name:'BLUE',hex:'#328cf0',light:'#b8d8ff',start:39}
+];
+// 52-cell outer track, clockwise.
+const PATH=[[6,1],[6,2],[6,3],[6,4],[6,5],[5,6],[4,6],[3,6],[2,6],[1,6],[0,6],[0,7],[0,8],[1,8],[2,8],[3,8],[4,8],[5,8],[6,9],[6,10],[6,11],[6,12],[6,13],[6,14],[7,14],[8,14],[8,13],[8,12],[8,11],[8,10],[8,9],[9,8],[10,8],[11,8],[12,8],[13,8],[14,8],[14,7],[14,6],[13,6],[12,6],[11,6],[10,6],[9,6],[8,5],[8,4],[8,3],[8,2],[8,1],[8,0],[7,0],[6,0]];
+const SAFE=new Set([0,8,13,21,26,34,39,47]);
+const LANES=[
+ [[1,7],[2,7],[3,7],[4,7],[5,7],[6,7]],
+ [[7,1],[7,2],[7,3],[7,4],[7,5],[7,6]],
+ [[13,7],[12,7],[11,7],[10,7],[9,7],[8,7]],
+ [[7,13],[7,12],[7,11],[7,10],[7,9],[7,8]]
+];
+const HOMES=[
+ [[1.7,1.7],[4.3,1.7],[1.7,4.3],[4.3,4.3]],
+ [[10.7,1.7],[13.3,1.7],[10.7,4.3],[13.3,4.3]],
+ [[10.7,10.7],[13.3,10.7],[10.7,13.3],[13.3,13.3]],
+ [[1.7,10.7],[4.3,10.7],[1.7,13.3],[4.3,13.3]]
+];
+const FACES=['⚀','⚁','⚂','⚃','⚄','⚅'];
+let mode='computer',count=4,players=[],turn=0,dice=null,rolling=false,over=false,timer=null;
+function createPlayers(){
+ players=C.slice(0,count).map((c,i)=>({color:i,name:mode==='computer'&&i>0?'CPU '+c.name:c.name,tokens:[-1,-1,-1,-1]}));
+}
+function startGame(){
+ clearTimeout(timer);over=false;rolling=false;dice=null;turn=0;createPlayers();
+ $('setup').classList.add('hidden');$('winner').classList.add('hidden');$('die').textContent='⚄';$('choices').innerHTML='';
+ status('Roll the dice to start.');draw();controls();
+}
+function status(s){$('status').textContent=s}
+function cpu(){return mode==='computer'&&turn!==0}
+function controls(){
+ $('computer').classList.toggle('active',mode==='computer');$('local').classList.toggle('active',mode==='local');
+ $('players').classList.toggle('hidden',mode!=='local');$('players').value=count;
+ $('turn').textContent=C[turn].name+"'S TURN";
+ $('turn').style.color=C[turn].hex;
+ $('roll').disabled=rolling||over||dice!==null||cpu();
+ $('roll').innerHTML=cpu()?'CPU<br>TURN':'ROLL<br>DICE';
+}
+function progressCan(pos,n){return pos===-1?n===6:pos<57&&pos+n<=57}
+function trackIndex(color,pos){return (C[color].start+pos)%52}
+function validMoves(){return players[turn].tokens.map((p,i)=>({p,i})).filter(t=>progressCan(t.p,dice))}
+function roll(){
+ if(rolling||over||dice!==null||cpu())return;
+ rolling=true;controls();$('die').classList.add('roll');$('hint').textContent='Rolling…';
+ let k=0;const iv=setInterval(()=>{
+ $('die').textContent=FACES[Math.floor(Math.random()*6)];
+ if(++k>=10){clearInterval(iv);$('die').classList.remove('roll');dice=1+Math.floor(Math.random()*6);rolling=false;$('die').textContent=FACES[dice-1];resolveRoll()}
+ },65);
+}
+function resolveRoll(){
+ const m=validMoves();
+ if(!m.length){
+ status(`${players[turn].name} rolled ${dice}; no valid move.`);
+ $('hint').textContent='Need a 6 to leave base';
+ controls();setTimeout(()=>endTurn(false),800);return;
+ }
+ status(`${players[turn].name} rolled ${dice}. Tap a token.`);
+ $('hint').textContent='Tap a token on the board or choose below';
+ $('choices').innerHTML='';
+ m.forEach(t=>{const b=document.createElement('button');b.className='choice';b.textContent='Token '+(t.i+1);b.onclick=()=>move(t.i);$('choices').appendChild(b)});
+ draw(m.map(t=>t.i));controls();
+ if(cpu())timer=setTimeout(()=>{const sorted=m.slice().sort((a,b)=>score(b.i)-score(a.i));move(sorted[0].i)},600);
+}
+function score(i){
+ const p=players[turn].tokens[i],n=p===-1?0:p+dice;let s=n;
+ if(p===-1)s+=20;if(n===57)s+=100;
+ if(n<51&&n>=0){const idx=trackIndex(turn,n);if(!SAFE.has(idx)&&players.some((q,j)=>j!==turn&&q.tokens.some(v=>v>=0&&v<51&&trackIndex(j,v)===idx)))s+=70}
+ return s+Math.random()*.1;
+}
+function move(i){
+ if(rolling||over||dice===null||cpu())return;
+ const p=players[turn],old=p.tokens[i];if(!progressCan(old,dice))return;
+ rolling=true;const n=old===-1?0:old+dice;const rolled=dice;dice=null;p.tokens[i]=n;
+ let captured=0;
+ if(n<51){
+  const idx=trackIndex(turn,n);
+  if(!SAFE.has(idx))players.forEach((q,j)=>{if(j!==turn)q.tokens=q.tokens.map(v=>{if(v>=0&&v<51&&trackIndex(j,v)===idx){captured++;return -1}return v})});
+ }
+ draw();controls();
+ if(p.tokens.every(v=>v===57)){over=true;rolling=false;$('winnerTitle').textContent=p.name+' wins! 🏆';$('winnerText').textContent='All four tokens reached the centre.';$('winner').classList.remove('hidden');status(p.name+' wins!');controls();return}
+ const bonus=rolled===6||captured>0||n===57;
+ status(p.name+' moved token '+(i+1)+(captured?' — captured '+captured+' token(s)!':'')+(bonus?' Bonus turn!':''));
+ rolling=false;$('choices').innerHTML='';
+ if(bonus){$('hint').textContent='Bonus turn — roll again';controls();if(cpu())timer=setTimeout(roll,650)}
+ else setTimeout(()=>endTurn(false),420);
+}
+function endTurn(force){
+ if(over)return;rolling=false;dice=null;$('choices').innerHTML='';
+ if(!force)turn=(turn+1)%players.length;
+ $('hint').textContent='Roll to move a token';status(players[turn].name+"'s turn.");controls();draw();
+ if(cpu())timer=setTimeout(roll,650);
+}
+function cell(x,y,fill){
+ const s=40;ctx.fillStyle=fill;ctx.fillRect(x*s+1,y*s+1,s-2,s-2);ctx.strokeStyle='#aab6c5';ctx.lineWidth=1.3;ctx.strokeRect(x*s+1,y*s+1,s-2,s-2)
+}
+function rr(x,y,w,h,r){ctx.beginPath();ctx.roundRect(x,y,w,h,r);ctx.fill()}
+function token(x,y,color,glow=false){
+ ctx.save();if(glow){ctx.shadowColor=C[color].hex;ctx.shadowBlur=17}
+ ctx.beginPath();ctx.arc(x,y,11,0,Math.PI*2);ctx.fillStyle=C[color].hex;ctx.fill();ctx.lineWidth=3;ctx.strokeStyle='#fff';ctx.stroke();
+ ctx.beginPath();ctx.arc(x-3,y-4,3,0,Math.PI*2);ctx.fillStyle='#ffffffcc';ctx.fill();ctx.restore();
+}
+function draw(highlight=[]){
+ ctx.clearRect(0,0,600,600);ctx.fillStyle='#e4e9f0';ctx.fillRect(0,0,600,600);
+ const base=[{x:0,y:0,c:C[0]},{x:360,y:0,c:C[1]},{x:360,y:360,c:C[2]},{x:0,y:360,c:C[3]}];
+ base.forEach(q=>{ctx.fillStyle=q.c.hex;ctx.fillRect(q.x+3,q.y+3,234,234);ctx.fillStyle='#fff';rr(q.x+34,q.y+34,166,166,15)});
+ PATH.forEach(([x,y],i)=>{let fill='#fff';const sc=C.find(c=>c.start===i);if(sc)fill=sc.hex;if(SAFE.has(i))fill='#fff3bf';cell(x,y,fill);if(SAFE.has(i)){ctx.fillStyle='#d8a914';ctx.font='bold 22px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('★',x*40+20,y*40+20)}});
+ LANES.forEach((lane,i)=>lane.forEach(([x,y],j)=>cell(x,y,j===5?C[i].hex:C[i].light)));
+ // four-colour home triangle
+ [[C[0],[[240,240],[360,240],[300,300]]],[C[1],[[360,240],[360,360],[300,300]]],[C[2],[[360,360],[240,360],[300,300]]],[C[3],[[240,360],[240,240],[300,300]]]].forEach(([c,pts])=>{ctx.beginPath();ctx.moveTo(...pts[0]);pts.slice(1).forEach(p=>ctx.lineTo(...p));ctx.closePath();ctx.fillStyle=c.hex;ctx.fill()});
+ ctx.beginPath();ctx.arc(300,300,18,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.fillStyle='#17273b';ctx.font='900 9px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('N99',300,300);
+ const stacks={};
+ players.forEach(p=>HOMES[p.color].forEach(([cx,cy],i)=>{
+  const x=cx*40,y=cy*40;ctx.beginPath();ctx.arc(x,y,15,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();ctx.lineWidth=3;ctx.strokeStyle=C[p.color].hex;ctx.stroke();
+  if(p.tokens[i]===-1)token(x,y,p.color);
+  if(p.tokens[i]===57)token(300+(i%2?11:-11),300+(i>1?11:-11),p.color);
+ }));
+ players.forEach(p=>p.tokens.forEach((pos,i)=>{
+  if(pos<0||pos>=57)return;const idx=trackIndex(p.color,pos),[x,y]=PATH[idx],n=stacks[idx]||0;stacks[idx]=n+1;
+  const off=[[0,0],[-8,-8],[8,-8],[-8,8],[8,8]][n%5];token(x*40+20+off[0],y*40+20+off[1],p.color,p.color===turn&&highlight.includes(i));
+ }));
+ ctx.strokeStyle=C[turn].hex;ctx.lineWidth=4;ctx.strokeRect(3,3,594,594);
+}
+function resize(){const r=canvas.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.max(1,Math.round(r.width*dpr));canvas.height=Math.max(1,Math.round(r.height*dpr));ctx.setTransform(canvas.width/600,0,0,canvas.height/600,0,0);draw()}
+canvas.addEventListener('pointerdown',e=>{
+ if(dice===null||rolling||over||cpu())return;
+ const r=canvas.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*600,y=(e.clientY-r.top)/r.height*600;
+ let chosen=-1,dist=Infinity;
+ players[turn].tokens.forEach((pos,i)=>{
+  let tx,ty;if(pos===-1){[tx,ty]=HOMES[turn][i];tx*=40;ty*=40}else if(pos>=57)return;else{const [gx,gy]=PATH[trackIndex(turn,pos)];tx=gx*40+20;ty=gy*40+20}
+  const d=Math.hypot(x-tx,y-ty);if(d<27&&d<dist&&progressCan(pos,dice)){chosen=i;dist=d}
+ });
+ if(chosen>=0)move(chosen);
+});
+$('roll').onclick=roll;
+$('computer').onclick=()=>{mode='computer';count=4;startGame()};
+$('local').onclick=()=>{mode='local';count=Number($('players').value)||4;startGame()};
+$('players').onchange=e=>{if(mode==='local'){count=Number(e.target.value);startGame()}};
+$('new').onclick=()=>{$('setup').classList.remove('hidden');$('winner').classList.add('hidden')};
+$('setupMode').onchange=()=>{$('countWrap').classList.toggle('hidden',$('setupMode').value==='computer')};
+$('start').onclick=()=>{mode=$('setupMode').value;count=mode==='computer'?4:Number($('setupCount').value);startGame()};
+$('again').onclick=startGame;
+$('close').onclick=()=>$('winner').classList.add('hidden');
+$('home').onclick=()=>location.href='index.html';
+window.addEventListener('resize',resize);
+draw();resize();
+setTimeout(()=>{$('welcome').classList.add('hidden');$('setup').classList.remove('hidden')},6000);
+})();
+</script>
+</body>
+</html>
+
