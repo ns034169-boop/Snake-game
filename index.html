@@ -8,6 +8,123 @@
 <style>
   * { box-sizing: border-box; }
 
+<!-- UPCOMING FEATURES POPUP -->
+<style>
+  #updatePopup {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+    background: rgba(0, 0, 0, 0.82);
+    font-family: monospace;
+  }
+
+  #updatePopup .popup-box {
+    width: 100%;
+    max-width: 360px;
+    padding: 24px 18px;
+    text-align: center;
+    color: #d7ffb8;
+    background: #152719;
+    border: 2px solid #8cff52;
+    border-radius: 14px;
+    box-shadow: 0 0 28px #65ff4260;
+    animation: popupIn 0.35s ease-out;
+  }
+
+  #updatePopup h2 {
+    color: #9cff57;
+    margin-top: 0;
+    font-size: 23px;
+  }
+
+  #updatePopup .feature {
+    padding: 10px;
+    margin: 8px 0;
+    background: #203b27;
+    border-radius: 8px;
+    text-align: left;
+  }
+
+  #updatePopup .timer {
+    color: #9cff57;
+    font-weight: bold;
+    font-size: 20px;
+    margin: 18px 0;
+  }
+
+  #updatePopup button {
+    padding: 12px 22px;
+    border: none;
+    border-radius: 7px;
+    background: #9cff57;
+    color: #142414;
+    font-weight: bold;
+    font-family: monospace;
+    font-size: 15px;
+    cursor: pointer;
+  }
+
+  #updatePopup button:hover {
+    background: white;
+  }
+
+  @keyframes popupIn {
+    from { opacity: 0; transform: scale(0.85); }
+    to { opacity: 1; transform: scale(1); }
+  }
+</style>
+
+<div id="updatePopup" role="dialog"
+     aria-modal="true" aria-labelledby="updateTitle">
+  <div class="popup-box">
+    <div style="font-size:42px">🐍</div>
+
+    <h2 id="updateTitle">BIG UPDATE INCOMING!</h2>
+
+    <p>The game is getting a major upgrade!</p>
+
+    <div class="feature">👤 Personal dashboard with your username</div>
+    <div class="feature">⛶ Full-screen gaming mode</div>
+    <div class="feature">🎮 More exciting features</div>
+
+    <div class="timer">⏳ COMING IN 1 HOUR</div>
+
+    <p style="font-size:12px;color:#a7c49a">
+      Stay tuned. The next level is coming!
+    </p>
+
+    <button id="closeUpdatePopup">LET'S PLAY!</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  const popup = document.getElementById("updatePopup");
+  const closeButton = document.getElementById("closeUpdatePopup");
+
+  // Show once per browser tab session
+  try {
+    if (!sessionStorage.getItem("snakeUpdateSeen")) {
+      popup.style.display = "flex";
+    }
+  } catch (e) {
+    popup.style.display = "flex";
+  }
+
+  closeButton.addEventListener("click", function () {
+    popup.style.display = "none";
+    try {
+      sessionStorage.setItem("snakeUpdateSeen", "yes");
+    } catch (e) {}
+  });
+})();
+</script>
+</body>
+
   body {
     margin: 0;
     min-height: 100vh;
