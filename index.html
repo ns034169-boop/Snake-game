@@ -6,94 +6,44 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#050b08">
 <title>N99 Games</title>
-
 <style>
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#050b08;color:#d9ffe3;font-family:Arial,sans-serif;overscroll-behavior:none}
-body{min-height:100dvh}
-button,input{font:inherit}
-button{cursor:pointer}
+button,input{font:inherit}button{cursor:pointer}
 .screen{position:fixed;inset:0;width:100%;height:100%;height:100dvh;overflow:hidden}
-
-/* Welcome popup */
-#welcomePopup{
- position:fixed;inset:0;z-index:9999;display:flex;
- align-items:center;justify-content:center;padding:22px;
- background:rgba(0,5,2,.91);backdrop-filter:blur(10px);
- transition:opacity .35s ease,visibility .35s ease
-}
-#welcomePopup.hide{opacity:0;visibility:hidden;pointer-events:none}
-.welcome-card{
- width:min(100%,360px);padding:24px;
- border:1px solid #35ff79;border-radius:20px;
- background:linear-gradient(145deg,#102719,#030906);
- box-shadow:0 0 35px rgba(53,255,121,.18);
- color:#e0ffe8;animation:popupIn .4s ease
-}
-@keyframes popupIn{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
-.welcome-title{text-align:center;color:#55ff88;font-size:26px;font-weight:900;letter-spacing:3px}
-.welcome-subtitle{text-align:center;color:#a8c9b1;font-size:13px;margin:8px 0 20px}
-.game-link{
- display:flex;justify-content:space-between;align-items:center;gap:10px;
- margin-top:10px;padding:13px;border:1px solid #245b35;
- border-radius:12px;color:#e0ffe8;text-decoration:none;background:#0b1c11
-}
-.game-link small{display:block;margin-top:4px;color:#91b79c}
-.game-link.disabled{opacity:.6;cursor:default}
-.welcome-timer{margin-top:20px;color:#55ff88;text-align:center;font-size:12px}
-
-/* Username screen */
-#login{
- display:flex;align-items:center;justify-content:center;padding:24px;
- background:radial-gradient(ellipse at 20% 20%,#123c28 0%,transparent 45%),
- radial-gradient(ellipse at 80% 80%,#113a31 0%,transparent 45%),#030806
-}
-#login::before{
- content:"";position:absolute;inset:-50%;
- background:repeating-linear-gradient(0deg,transparent 0,transparent 38px,rgba(69,255,133,.08) 39px,transparent 41px);
- animation:scan 9s linear infinite;pointer-events:none
-}
-#login::after{
- content:"";position:absolute;width:75vmax;height:75vmax;border:1px solid rgba(66,255,134,.13);
- border-radius:50%;box-shadow:0 0 70px rgba(35,255,118,.08),inset 0 0 70px rgba(35,255,118,.06);
- animation:pulse 5s ease-in-out infinite alternate;pointer-events:none
-}
-@keyframes scan{from{transform:translateY(0) rotate(-8deg)}to{transform:translateY(120px) rotate(-8deg)}}
+#login{display:flex;align-items:center;justify-content:center;padding:24px;background:radial-gradient(ellipse at 20% 20%,#123c28,transparent 45%),radial-gradient(ellipse at 80% 80%,#113a31,transparent 45%),#030806}
+#login::before{content:"";position:absolute;inset:-50%;background:repeating-linear-gradient(0deg,transparent 0,transparent 38px,rgba(69,255,133,.08) 39px,transparent 41px);animation:scan 9s linear infinite;pointer-events:none}
+#login::after{content:"";position:absolute;width:75vmax;height:75vmax;border:1px solid rgba(66,255,134,.13);border-radius:50%;box-shadow:0 0 70px rgba(35,255,118,.08),inset 0 0 70px rgba(35,255,118,.06);animation:pulse 5s ease-in-out infinite alternate;pointer-events:none}
+@keyframes scan{to{transform:translateY(120px) rotate(-8deg)}}
 @keyframes pulse{from{transform:scale(.85);opacity:.35}to{transform:scale(1.15);opacity:.9}}
 .login-box{position:relative;z-index:2;width:min(100%,360px);display:flex;flex-direction:column;gap:14px;text-align:center}
-.created{margin-bottom:8px;color:#9bffb6;font-size:14px;letter-spacing:3px;text-transform:uppercase;text-shadow:0 0 15px #35ff78}
-#username{
- width:100%;min-height:54px;padding:14px 16px;color:#e4ffeb;
- background:rgba(0,15,7,.8);border:1px solid #2cff72;border-radius:12px;
- outline:none;text-align:center;font-size:17px;touch-action:auto
-}
+.created{margin-bottom:8px;color:#9bffb6;font-size:14px;letter-spacing:3px;text-transform:uppercase}
+#username{width:100%;min-height:54px;padding:14px;color:#e4ffeb;background:rgba(0,15,7,.8);border:1px solid #2cff72;border-radius:12px;outline:none;text-align:center;font-size:17px}
 #username::placeholder{color:#8aa995}
-#username:focus{box-shadow:0 0 22px rgba(44,255,114,.2)}
 #startBtn{width:100%;min-height:54px;border:0;border-radius:12px;background:#39ff78;color:#041108;font-weight:800;letter-spacing:2px}
 #startBtn:active{transform:scale(.98)}
 
-/* Game */
-#gameScreen{
- display:none;flex-direction:column;align-items:center;justify-content:space-evenly;
- gap:8px;padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom));
- background:radial-gradient(ellipse at top,#10271a,transparent 65%),#050b08
-}
+/* Welcome popup */
+#welcomePopup{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:22px;background:rgba(0,5,2,.91);backdrop-filter:blur(10px);transition:opacity .35s,visibility .35s}
+#welcomePopup.hide{opacity:0;visibility:hidden;pointer-events:none}
+.welcome-card{width:min(100%,360px);padding:24px;border:1px solid #35ff79;border-radius:20px;background:linear-gradient(145deg,#102719,#030906);box-shadow:0 0 35px #35ff792e}
+.welcome-title{text-align:center;color:#55ff88;font-size:26px;font-weight:900;letter-spacing:3px}
+.welcome-subtitle{text-align:center;color:#a8c9b1;font-size:13px;margin:8px 0 20px}
+.game-link{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:10px;padding:13px;border:1px solid #245b35;border-radius:12px;color:#e0ffe8;text-decoration:none;background:#0b1c11}
+.game-link small{display:block;margin-top:4px;color:#91b79c}
+.welcome-timer{margin-top:20px;color:#55ff88;text-align:center;font-size:12px}
+
+/* Snake screen */
+#gameScreen{display:none;flex-direction:column;align-items:center;justify-content:space-evenly;gap:8px;padding:max(12px,env(safe-area-inset-top)) 12px max(12px,env(safe-area-inset-bottom));background:radial-gradient(ellipse at top,#10271a,transparent 65%),#050b08}
 .topbar{width:min(100%,560px);display:flex;align-items:center;justify-content:space-between;gap:8px}
 .brand{color:#45ff82;font-size:19px;font-weight:900;letter-spacing:2px;text-shadow:0 0 12px #16b94e}
 .score-area{display:flex;gap:8px}
 .score-card{min-width:76px;padding:8px 10px;border:1px solid #214c30;border-radius:10px;background:rgba(4,18,9,.8);text-align:center}
 .score-label{color:#8cb99a;font-size:10px;letter-spacing:1px}
 .score-value{margin-top:3px;color:#6cff96;font-size:19px;font-weight:bold}
-.board-wrap{
- position:relative;width:min(92vw,56dvh,560px);aspect-ratio:1;
- border:2px solid #36e96e;border-radius:8px;overflow:hidden;
- background:#020704;box-shadow:0 0 24px rgba(37,255,104,.12);flex-shrink:1
-}
+.board-wrap{position:relative;width:min(92vw,56dvh,560px);aspect-ratio:1;border:2px solid #36e96e;border-radius:8px;overflow:hidden;background:#020704;box-shadow:0 0 24px #25ff681f;flex-shrink:1}
 #board{display:block;width:100%;height:100%;touch-action:none}
-#message{
- position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
- justify-content:center;gap:14px;background:rgba(0,8,3,.86);text-align:center;padding:20px
-}
+#message{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:#000803db;text-align:center;padding:20px}
 #messageText{color:#8cffab;font-size:22px;font-weight:bold;text-shadow:0 0 15px #22b951}
 .small-btn{min-height:42px;padding:10px 16px;color:#d9ffe3;background:#10291a;border:1px solid #36d966;border-radius:10px;font-weight:bold}
 .controls{width:min(100%,300px);display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(2,52px);gap:7px;touch-action:none}
@@ -102,41 +52,44 @@ button{cursor:pointer}
 .up{grid-column:2;grid-row:1}.left{grid-column:1;grid-row:2}.down{grid-column:2;grid-row:2}.right{grid-column:3;grid-row:2}
 .bottom-bar{width:min(100%,560px);display:flex;align-items:center;justify-content:space-between;gap:8px;color:#83a991;font-size:12px}
 #liveCount{color:#75ffa0}
-@media(max-height:650px){
- #gameScreen{gap:4px}.board-wrap{width:min(75vw,45dvh,480px)}
- .controls{grid-template-rows:repeat(2,40px);width:min(100%,240px)}
- .control-btn{font-size:20px}.score-card{padding:5px 8px}
-}
+
+/* Separate online dashboard */
+#dashboard{display:none;overflow-y:auto;overscroll-behavior:contain;padding:24px 16px max(28px,env(safe-area-inset-bottom));background:radial-gradient(ellipse at top,#123521,transparent 60%),#050b08}
+.dash-wrap{width:min(100%,560px);margin:0 auto}
+.dash-brand{text-align:center;color:#55ff88;font-size:26px;font-weight:900;letter-spacing:3px;margin:12px 0}
+.dash-sub{text-align:center;color:#9cbba5;font-size:13px;margin-bottom:22px}
+.dash-panel{padding:17px;margin:12px 0;border:1px solid #245b35;border-radius:15px;background:#09170f}
+.dash-label{font-size:11px;letter-spacing:2px;color:#8cb99a}
+.final-score{font-size:40px;font-weight:900;color:#6cff96;margin:8px 0}
+.dash-actions{display:flex;gap:9px;margin:16px 0}
+.dash-actions button{flex:1}
+#leaderStatus{font-size:12px;color:#9cbba5;margin:12px 0}
+.leader-row{display:grid;grid-template-columns:38px minmax(0,1fr) auto;align-items:center;gap:9px;padding:12px 0;border-bottom:1px solid #1b3b27}
+.leader-row:last-child{border-bottom:0}
+.rank{color:#6cff96;font-weight:900}
+.leader-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:bold}
+.leader-date{font-size:10px;color:#799985;margin-top:4px}
+.leader-score{color:#6cff96;font-weight:900}
+.muted{color:#9cbba5;font-size:13px}
+@media(max-height:650px){#gameScreen{gap:4px}.board-wrap{width:min(75vw,45dvh,480px)}.controls{grid-template-rows:repeat(2,40px);width:min(100%,240px)}.control-btn{font-size:20px}.score-card{padding:5px 8px}}
 </style>
 </head>
 <body>
 
-<!-- Welcome popup: 6 seconds -->
 <div id="welcomePopup">
  <div class="welcome-card">
   <div class="welcome-title">N99 GAMES</div>
   <div class="welcome-subtitle">Welcome to your gaming zone!</div>
-
   <a class="game-link" href="#snake" id="snakeLink">
-   <span>🐍 <b>Snake Game</b><small>Available now</small></span>
-   <span>▶</span>
+   <span>🐍 <b>Snake Game</b><small>Available now</small></span><span>▶</span>
   </a>
-
-  <div class="game-link disabled">
-   <span>🐦 <b>Flappy Bird</b><small>Coming soon</small></span>
-   <span>🔒</span>
-  </div>
-
-  <div class="game-link disabled">
-   <span>🎲 <b>Ludo</b><small>Coming soon</small></span>
-   <span>🔒</span>
-  </div>
-
+  <a class="game-link" href="flappy.html" id="flappyLink">
+   <span>🐦 <b>Flappy Bird</b><small>Play Flappy Bird</small></span><span>▶</span>
+  </a>
   <div class="welcome-timer" id="welcomeTimer">Continuing in 6 seconds…</div>
  </div>
 </div>
 
-<!-- Username entry -->
 <section id="login" class="screen">
  <form id="loginForm" class="login-box">
   <div class="created">Created by Nikhil</div>
@@ -145,7 +98,6 @@ button{cursor:pointer}
  </form>
 </section>
 
-<!-- Snake Game -->
 <section id="gameScreen" class="screen">
  <div class="topbar">
   <div class="brand">N99 SNAKE</div>
@@ -154,7 +106,6 @@ button{cursor:pointer}
    <div class="score-card"><div class="score-label">BEST</div><div class="score-value" id="best">0</div></div>
   </div>
  </div>
-
  <div class="board-wrap">
   <canvas id="board" width="560" height="560"></canvas>
   <div id="message">
@@ -162,14 +113,12 @@ button{cursor:pointer}
    <button class="small-btn" id="playBtn">PLAY</button>
   </div>
  </div>
-
  <div class="controls">
   <button class="control-btn up" data-dir="up" aria-label="Up">▲</button>
   <button class="control-btn left" data-dir="left" aria-label="Left">◀</button>
   <button class="control-btn down" data-dir="down" aria-label="Down">▼</button>
   <button class="control-btn right" data-dir="right" aria-label="Right">▶</button>
  </div>
-
  <div class="bottom-bar">
   <span id="playerName"></span>
   <span>LIVE: <b id="liveCount">—</b></span>
@@ -177,9 +126,38 @@ button{cursor:pointer}
  </div>
 </section>
 
+<section id="dashboard" class="screen">
+ <div class="dash-wrap">
+  <div class="dash-brand">N99 SNAKE</div>
+  <div class="dash-sub">ONLINE LEADERBOARD · ALL PLAYERS</div>
+  <div class="dash-panel">
+   <div class="dash-label">GAME OVER · YOUR SCORE</div>
+   <div class="final-score" id="finalScore">0</div>
+   <div id="finalPlayer" class="muted"></div>
+  </div>
+  <div class="dash-actions">
+   <button class="small-btn" id="againBtn">PLAY AGAIN</button>
+   <button class="small-btn" id="backBtn">BACK</button>
+  </div>
+  <div class="dash-panel">
+   <div class="dash-label">🏆 TOP 20 PLAYERS</div>
+   <div id="leaderStatus">Loading online scores…</div>
+   <div id="leaderboard"></div>
+   <button class="small-btn" id="refreshBtn" style="width:100%;margin-top:14px">↻ REFRESH SCORES</button>
+  </div>
+ </div>
+</section>
+
 <script>
-const SUPABASE_URL="https://udqhsxdmpmpgoumsdskg.supabase.co";
-const SUPABASE_KEY="sb_publishable_sjoX7lvLQEPM8izWabFayw_-vlOVVX6";
+/*
+ * Leaderboard uses your NEW Supabase project.
+ * Live-player count continues using the EXISTING project.
+ */
+const LEADER_URL="https://ppioggnrqmvoyryumzvi.supabase.co";
+const LEADER_KEY="sb_publishable_zzVi4tx6nCjDjGONnz2sGA_vIQmCQSh";
+
+const PRESENCE_URL="https://udqhsxdmpmpgoumsdskg.supabase.co";
+const PRESENCE_KEY="sb_publishable_sjoX7lvLQEPM8izWabFayw_-vlOVVX6";
 
 const popup=document.getElementById("welcomePopup");
 const timerText=document.getElementById("welcomeTimer");
@@ -187,6 +165,7 @@ const login=document.getElementById("login");
 const loginForm=document.getElementById("loginForm");
 const usernameInput=document.getElementById("username");
 const gameScreen=document.getElementById("gameScreen");
+const dashboard=document.getElementById("dashboard");
 const canvas=document.getElementById("board");
 const ctx=canvas.getContext("2d");
 const message=document.getElementById("message");
@@ -197,8 +176,29 @@ let username="",snake=[],food={x:10,y:10};
 let direction={x:1,y:0},nextDirection={x:1,y:0};
 let score=0,best=0,running=false,gameTimer=null;
 let presenceTimer=null,countTimer=null,sessionId="";
+let scoreSubmitted=false;
+let audioContext=null;
 
-/* Welcome popup disappears automatically after 6 seconds */
+function welcomeSound(){
+ try{
+  const AC=window.AudioContext||window.webkitAudioContext;
+  if(!AC)return;
+  if(!audioContext)audioContext=new AC();
+  if(audioContext.state==="suspended")audioContext.resume();
+  const now=audioContext.currentTime;
+  [523.25,659.25,783.99].forEach((freq,i)=>{
+   const osc=audioContext.createOscillator();
+   const gain=audioContext.createGain();
+   osc.type="sine";osc.frequency.value=freq;
+   gain.gain.setValueAtTime(.0001,now+i*.12);
+   gain.gain.exponentialRampToValueAtTime(.09,now+i*.12+.025);
+   gain.gain.exponentialRampToValueAtTime(.0001,now+i*.12+.19);
+   osc.connect(gain);gain.connect(audioContext.destination);
+   osc.start(now+i*.12);osc.stop(now+i*.12+.2);
+  });
+ }catch(e){}
+}
+
 let popupSeconds=6;
 const popupCountdown=setInterval(()=>{
  popupSeconds--;
@@ -210,12 +210,11 @@ const popupCountdown=setInterval(()=>{
  timerText.textContent="Continuing in "+popupSeconds+" seconds…";
 },1000);
 
-/* Tap Snake Game to dismiss the popup immediately */
 document.getElementById("snakeLink").addEventListener("click",e=>{
- e.preventDefault();
- clearInterval(popupCountdown);
- popup.classList.add("hide");
+ e.preventDefault();welcomeSound();
+ clearInterval(popupCountdown);popup.classList.add("hide");
 });
+document.getElementById("flappyLink").addEventListener("click",()=>welcomeSound());
 
 function makeId(){
  if(crypto.randomUUID)return crypto.randomUUID();
@@ -230,11 +229,13 @@ loginForm.addEventListener("submit",e=>{
  e.preventDefault();
  username=usernameInput.value.trim();
  if(!username){usernameInput.focus();return}
+ welcomeSound();
  document.getElementById("playerName").textContent=username;
  best=Number(localStorage.getItem("n99-best-"+username.toLowerCase())||0);
  document.getElementById("best").textContent=best;
  login.style.display="none";
  gameScreen.style.display="flex";
+ dashboard.style.display="none";
  setFullscreen();
  resetGame();
  showMessage("READY?","PLAY");
@@ -245,12 +246,23 @@ document.getElementById("fullBtn").addEventListener("click",()=>{
  else if(document.exitFullscreen)document.exitFullscreen().catch(()=>{});
 });
 document.getElementById("playBtn").addEventListener("click",startGame);
+document.getElementById("againBtn").addEventListener("click",()=>{
+ dashboard.style.display="none";
+ gameScreen.style.display="flex";
+ startGame();
+});
+document.getElementById("backBtn").addEventListener("click",()=>{
+ dashboard.style.display="none";
+ gameScreen.style.display="flex";
+});
+document.getElementById("refreshBtn").addEventListener("click",loadLeaderboard);
 
 function resetGame(){
  stopGame();
  snake=[{x:8,y:10},{x:7,y:10},{x:6,y:10}];
  direction={x:1,y:0};nextDirection={x:1,y:0};
- score=0;document.getElementById("score").textContent="0";
+ score=0;scoreSubmitted=false;
+ document.getElementById("score").textContent="0";
  makeFood();draw();
 }
 function showMessage(text,buttonText){
@@ -292,7 +304,20 @@ function tick(){
  }else snake.pop();
  draw();
 }
-function endGame(){stopGame();showMessage("GAME OVER · "+score,"PLAY AGAIN")}
+async function endGame(){
+ if(!running)return;
+ stopGame();
+ showMessage("GAME OVER · "+score,"PLAY AGAIN");
+ document.getElementById("finalScore").textContent=score;
+ document.getElementById("finalPlayer").textContent="Player: "+username;
+ dashboard.style.display="block";
+ gameScreen.style.display="none";
+ if(!scoreSubmitted){
+  scoreSubmitted=true;
+  await submitScore();
+ }
+ await loadLeaderboard();
+}
 function draw(){
  ctx.fillStyle="#020704";ctx.fillRect(0,0,560,560);
  ctx.strokeStyle="rgba(56,255,116,.055)";ctx.lineWidth=1;
@@ -333,14 +358,81 @@ canvas.addEventListener("pointerup",e=>{
  else changeDirection(dy>0?"down":"up");
 });
 
-/* Supabase live-player count */
-async function supabaseRequest(path,options={}){
+/* Shared online leaderboard */
+async function leaderboardRequest(path,options={}){
  try{
-  return await fetch(SUPABASE_URL+"/rest/v1/"+path,{
+  return await fetch(LEADER_URL+"/rest/v1/"+path,{
    ...options,
    headers:{
-    apikey:SUPABASE_KEY,
-    Authorization:"Bearer "+SUPABASE_KEY,
+    apikey:LEADER_KEY,
+    Authorization:"Bearer "+LEADER_KEY,
+    "Content-Type":"application/json",
+    ...options.headers
+   }
+  });
+ }catch(e){return null}
+}
+async function submitScore(){
+ const status=document.getElementById("leaderStatus");
+ status.textContent="Submitting your score…";
+ const res=await leaderboardRequest("snake_scores",{
+  method:"POST",
+  headers:{Prefer:"return=minimal"},
+  body:JSON.stringify({username:username,score:score})
+ });
+ if(res&&res.ok){
+  status.textContent="Score submitted. Online leaderboard:";
+ }else{
+  let detail="";
+  try{if(res)detail=await res.text()}catch(e){}
+  status.textContent="Score could not be saved. Check Supabase table permissions"+(detail?" ("+detail.slice(0,120)+")":"")+".";
+ }
+}
+async function loadLeaderboard(){
+ const status=document.getElementById("leaderStatus");
+ const list=document.getElementById("leaderboard");
+ status.textContent="Loading online scores…";
+ try{
+  const res=await leaderboardRequest("snake_scores?select=username,score,created_at&order=score.desc,created_at.asc&limit=20");
+  if(!res||!res.ok)throw new Error(res?await res.text():"Network error");
+  const rows=await res.json();
+  list.replaceChildren();
+  if(!rows.length){
+   list.innerHTML='<div class="muted">No scores yet. Be the first player!</div>';
+  }else{
+   rows.forEach((row,index)=>{
+    const item=document.createElement("div");
+    item.className="leader-row";
+    const rank=document.createElement("div");
+    rank.className="rank";
+    rank.textContent=index===0?"🥇":index===1?"🥈":index===2?"🥉":"#"+(index+1);
+    const details=document.createElement("div");
+    const name=document.createElement("div");
+    name.className="leader-name";name.textContent=row.username;
+    const date=document.createElement("div");
+    date.className="leader-date";
+    date.textContent=row.created_at?new Date(row.created_at).toLocaleDateString():"";
+    details.append(name,date);
+    const points=document.createElement("div");
+    points.className="leader-score";points.textContent=Number(row.score)+" pts";
+    item.append(rank,details,points);list.append(item);
+   });
+  }
+  status.textContent="Live leaderboard · Top 20 scores";
+ }catch(e){
+  status.textContent="Leaderboard could not load. Check your internet, table and Supabase policies.";
+  list.replaceChildren();
+ }
+}
+
+/* Existing live-player count connection */
+async function presenceRequest(path,options={}){
+ try{
+  return await fetch(PRESENCE_URL+"/rest/v1/"+path,{
+   ...options,
+   headers:{
+    apikey:PRESENCE_KEY,
+    Authorization:"Bearer "+PRESENCE_KEY,
     "Content-Type":"application/json",
     ...options.headers
    }
@@ -349,27 +441,27 @@ async function supabaseRequest(path,options={}){
 }
 async function updatePresence(){
  if(!running||!sessionId)return;
- await supabaseRequest("active_games?on_conflict=session_id",{
+ await presenceRequest("active_games?on_conflict=session_id",{
   method:"POST",
   headers:{Prefer:"resolution=merge-duplicates,return=minimal"},
   body:JSON.stringify({session_id:sessionId,started_at:new Date().toISOString(),last_seen:new Date().toISOString()})
+ });
+}
+async function stopPresence(){
+ if(presenceTimer)clearInterval(presenceTimer);
+ presenceTimer=null;
+ const oldId=sessionId;sessionId="";
+ if(oldId)await presenceRequest("active_games?session_id=eq."+encodeURIComponent(oldId),{
+  method:"DELETE",headers:{Prefer:"return=minimal"}
  });
 }
 function startPresence(){
  stopPresence();sessionId=makeId();updatePresence();
  presenceTimer=setInterval(updatePresence,15000);
 }
-async function stopPresence(){
- if(presenceTimer)clearInterval(presenceTimer);
- presenceTimer=null;
- const oldId=sessionId;sessionId="";
- if(oldId)await supabaseRequest("active_games?session_id=eq."+encodeURIComponent(oldId),{
-  method:"DELETE",headers:{Prefer:"return=minimal"}
- });
-}
 async function updateLiveCount(){
  const since=new Date(Date.now()-45000).toISOString();
- const res=await supabaseRequest("active_games?select=session_id&last_seen=gte."+encodeURIComponent(since));
+ const res=await presenceRequest("active_games?select=session_id&last_seen=gte."+encodeURIComponent(since));
  if(res&&res.ok){
   const rows=await res.json();
   document.getElementById("liveCount").textContent=rows.length;
@@ -382,9 +474,9 @@ function startCountPolling(){
 }
 window.addEventListener("pagehide",()=>{
  if(!sessionId)return;
- fetch(SUPABASE_URL+"/rest/v1/active_games?session_id=eq."+encodeURIComponent(sessionId),{
+ fetch(PRESENCE_URL+"/rest/v1/active_games?session_id=eq."+encodeURIComponent(sessionId),{
   method:"DELETE",keepalive:true,
-  headers:{apikey:SUPABASE_KEY,Authorization:"Bearer "+SUPABASE_KEY}
+  headers:{apikey:PRESENCE_KEY,Authorization:"Bearer "+PRESENCE_KEY}
  }).catch(()=>{});
 });
 </script>
