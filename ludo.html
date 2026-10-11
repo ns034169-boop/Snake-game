@@ -3,628 +3,485 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#090b1b">
 <title>N99 Games - Ludo</title>
-
 <style>
 *{box-sizing:border-box}
-:root{
-  --bg:#090b1b;
-  --panel:#151a32;
-  --text:#fff;
-  --red:#ff405b;
-  --green:#29e89b;
-  --yellow:#ffd83d;
-  --blue:#40a7ff;
-}
-body{
-  margin:0;min-height:100vh;background:
-  radial-gradient(ellipse at top,#20295b 0%,#0b1027 45%,#060812 100%);
-  color:var(--text);font-family:Arial,sans-serif;
-  display:flex;flex-direction:column;align-items:center;
-  padding:12px;overflow-x:hidden
-}
+:root{--red:#ff405b;--green:#29c982;--yellow:#ffd83d;--blue:#40a7ff}
+body{margin:0;min-height:100vh;padding:12px;overflow-x:hidden;background:radial-gradient(ellipse at top,#20295b,#0b1027 50%,#060812);color:#fff;font-family:Arial,sans-serif;display:flex;flex-direction:column;align-items:center}
 header{width:min(100%,600px);display:flex;justify-content:space-between;align-items:center;padding:8px 2px 14px}
-.brand{font-size:23px;font-weight:1000;letter-spacing:2px;color:#fff;text-shadow:0 0 12px #32eaff}
+.brand{font-size:23px;font-weight:1000;letter-spacing:2px;text-shadow:0 0 12px #32eaff}
 .brand span{color:#ffdf43}
 .homebtn{background:#202746;color:#fff;border:1px solid #46517b;border-radius:12px;padding:10px 13px;font-weight:bold;text-decoration:none}
 h2{font-size:19px;margin:3px 0 12px;text-align:center}
 #status{width:min(100%,560px);background:#151b35;border:1px solid #303b68;border-radius:14px;padding:12px;text-align:center;margin-bottom:12px;font-weight:bold;min-height:43px}
-#boardWrap{position:relative;width:min(94vw,560px);aspect-ratio:1/1;background:#fff;border:4px solid #a9b9ff;border-radius:12px;overflow:hidden;box-shadow:0 0 25px #456dff44}
+#boardWrap{width:min(94vw,560px);aspect-ratio:1;border:4px solid #a9b9ff;border-radius:12px;overflow:hidden;background:#fff;box-shadow:0 0 25px #456dff44}
 canvas{width:100%;height:100%;display:block;touch-action:manipulation}
-.bottom{width:min(100%,560px);display:flex;align-items:center;justify-content:center;gap:22px;padding:16px 0}
-#die{width:70px;height:70px;padding:0;border:0;border-radius:17px;background:#fff;color:#101827;font-size:48px;display:grid;place-items:center;box-shadow:0 0 22px #ffffff30,inset 0 -5px #d0d9e4;transition:transform .15s ease;cursor:pointer}
-#die:active{transform:scale(.92)}
-#die.roll{animation:shake .12s infinite alternate}
-@keyframes shake{from{transform:rotate(-9deg) translateY(-2px)}to{transform:rotate(9deg) translateY(2px)}}
-button{cursor:pointer;font-family:inherit}
-.primary{background:linear-gradient(135deg,#00e5ff,#5b66ff);color:#07101f;border:0;border-radius:13px;padding:13px 18px;font-size:14px;font-weight:1000;box-shadow:0 5px 0 #2536a0}
+.bottom{width:min(100%,560px);display:flex;align-items:center;justify-content:center;gap:26px;padding:20px 0}
+#die{width:76px;height:76px;padding:0;border:2px solid #d8def0;border-radius:17px;background:linear-gradient(145deg,#fff,#d9e0f0);color:#151a2c;font-size:52px;display:grid;place-items:center;box-shadow:0 8px 0 #8b96b4,0 12px 20px #0008,inset 2px 3px 5px #fff;cursor:grab;transform:perspective(300px) rotateX(8deg) rotateY(-8deg);transition:transform .18s ease,box-shadow .18s ease;touch-action:manipulation;user-select:none;-webkit-tap-highlight-color:transparent}
+#die:active{cursor:grabbing;transform:perspective(300px) translateY(6px) rotateX(18deg) rotateY(12deg) scale(.94);box-shadow:0 2px 0 #8b96b4,0 5px 10px #0007,inset 2px 3px 5px #fff}
+#die.roll{animation:dice3d .14s infinite alternate;cursor:grabbing}
+@keyframes dice3d{from{transform:perspective(300px) translateY(-5px) rotateX(18deg) rotateY(-18deg) rotateZ(-8deg)}to{transform:perspective(300px) translateY(3px) rotateX(-18deg) rotateY(18deg) rotateZ(8deg)}}
+.primary{background:linear-gradient(135deg,#00e5ff,#5b66ff);color:#07101f;border:0;border-radius:13px;padding:13px 18px;font-size:14px;font-weight:1000;box-shadow:0 5px 0 #2536a0;cursor:pointer}
 .primary:active{transform:translateY(3px);box-shadow:0 2px 0 #2536a0}
 .primary:disabled{opacity:.45;cursor:not-allowed}
 .smallnote{width:min(100%,560px);color:#aeb8dc;font-size:12px;text-align:center;line-height:1.6;margin:0 0 12px}
+.footer{font-size:11px;color:#7985ae;text-align:center;padding:12px}
 .overlay{position:fixed;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;padding:18px;background:#050713ed;backdrop-filter:blur(9px)}
 .overlay.hidden{display:none}
 .welcome{width:min(100%,390px);text-align:center;border:1px solid #4d5fff;border-radius:26px;padding:32px 20px;background:linear-gradient(150deg,#181c43,#0b1024);box-shadow:0 0 45px #4e45ff55;animation:pop .5s ease}
 @keyframes pop{from{opacity:0;transform:scale(.78)}to{opacity:1;transform:scale(1)}}
 .logo{font-size:38px;font-weight:1000;letter-spacing:3px;text-shadow:0 0 14px #00eaff,0 0 32px #564aff}
 .logo span{color:#ffdf43}
-.welcome .tag{color:#b8c3ff;letter-spacing:3px;font-size:11px;margin-top:8px}
+.tag{color:#b8c3ff;letter-spacing:3px;font-size:11px;margin-top:8px}
 .loader{height:5px;background:#282d56;border-radius:8px;margin-top:25px;overflow:hidden}
 .loader div{height:100%;background:linear-gradient(90deg,#00e5ff,#ff40c6,#ffdf43);animation:load 6s linear forwards}
 @keyframes load{from{width:0}to{width:100%}}
 .dialog{width:min(100%,400px);background:#131832;border:1px solid #39477e;border-radius:22px;padding:22px;box-shadow:0 0 35px #0009}
-.dialog h2{font-size:24px;color:#fff}
+.dialog h2{font-size:24px}
 .dialog p{font-size:13px;color:#b7c3e8;line-height:1.5;text-align:center}
 .field{width:100%;background:#090e23;color:#fff;border:1px solid #39477e;border-radius:12px;padding:13px;font-size:15px;margin:7px 0 12px}
 .mode{display:flex;gap:8px;margin:14px 0}
 .mode button{flex:1;padding:12px 7px;border-radius:12px;background:#202747;color:#fff;border:1px solid #414c7b;font-size:12px;font-weight:bold}
 .mode button.selected{background:#2a3570;border-color:#48e6ff;box-shadow:0 0 12px #37d9ff44}
-.dialog .primary{width:100%;margin-top:7px}
 #playersRow{display:none}
-.footer{font-size:11px;color:#7985ae;text-align:center;padding:12px}
+.dialog .primary{width:100%;margin-top:7px}
 #resultTitle{font-size:27px;color:#ffe45e}
+@media(max-width:380px){#die{width:66px;height:66px;font-size:45px}.bottom{gap:20px}.primary{padding:12px 14px}}
 </style>
 </head>
-
 <body>
 <header>
-  <div class="brand">N99 <span>GAMES</span></div>
-  <a class="homebtn" href="index.html">⌂ Home</a>
+ <div class="brand">N99 <span>GAMES</span></div>
+ <a class="homebtn" href="index.html">⌂ Home</a>
 </header>
 
 <h2>🎲 LUDO ARENA</h2>
 <div id="status">Welcome! Get ready to play.</div>
-
-<div id="boardWrap">
-  <canvas id="board" width="600" height="600" aria-label="Ludo board. Tap a highlighted token to move it."></canvas>
-</div>
+<div id="boardWrap"><canvas id="board" width="600" height="600" aria-label="Ludo board"></canvas></div>
 
 <div class="bottom">
-  <button id="die" aria-label="Dice">⚀</button>
-  <button class="primary" id="roll">ROLL DICE</button>
+ <button id="die" aria-label="Roll dice" title="Tap to roll">⚀</button>
+ <button class="primary" id="roll">ROLL DICE</button>
 </div>
 
 <div class="smallnote">
-  Roll a 6 to bring a token out of home. Tap a highlighted token on the board to move.
-  Roll a 6 or capture an opponent to get another turn.
+ Tap a glowing token to move it. In same-phone mode, Green has a shorter route, a higher chance of rolling six, and extra turns.
 </div>
 <div class="footer">N99 GAMES · PLAY FAIR, HAVE FUN</div>
 
-<!-- Same 6-second N99 GAMES welcome popup -->
 <div class="overlay" id="welcome">
-  <div class="welcome">
-    <div class="logo">N99 <span>GAMES</span></div>
-    <div class="tag">YOUR GAME. YOUR ARENA.</div>
-    <p style="color:#fff;margin-top:25px">GET READY TO PLAY LUDO!</p>
-    <div class="loader"><div></div></div>
-    <p style="font-size:12px;color:#8e9bc9">Entering the game...</p>
-  </div>
+ <div class="welcome">
+  <div class="logo">N99 <span>GAMES</span></div>
+  <div class="tag">YOUR GAME. YOUR ARENA.</div>
+  <p style="color:#fff;margin-top:25px">GET READY TO PLAY LUDO!</p>
+  <div class="loader"><div></div></div>
+  <p style="font-size:12px;color:#8e9bc9">Entering the game...</p>
+ </div>
 </div>
 
-<!-- Game setup -->
 <div class="overlay hidden" id="setup">
-  <div class="dialog">
-    <h2>🎲 Ludo Setup</h2>
-    <p>Choose your game mode and start playing.</p>
-    <label for="username">Your name</label>
-    <input class="field" id="username" maxlength="14" placeholder="Enter your name" value="Player 1">
-    <div class="mode">
-      <button id="computerMode" class="selected">🤖 Vs Computer</button>
-      <button id="localMode">👥 Same Phone</button>
-    </div>
-    <div id="playersRow">
-      <label for="players">Number of players</label>
-      <select class="field" id="players">
-        <option value="2">2 Players</option>
-        <option value="3">3 Players</option>
-        <option value="4" selected>4 Players</option>
-      </select>
-    </div>
-    <button class="primary" id="start">START GAME</button>
+ <div class="dialog">
+  <h2>🎲 Ludo Setup</h2>
+  <p>Choose your game mode.</p>
+  <label for="username">Your name</label>
+  <input class="field" id="username" maxlength="14" placeholder="Enter your name" value="Player 1">
+  <div class="mode">
+   <button id="computerMode" class="selected">🤖 Vs Computer</button>
+   <button id="localMode">👥 Same Phone</button>
   </div>
+  <div id="playersRow">
+   <label for="players">Number of players</label>
+   <select class="field" id="players">
+    <option value="2">2 Players</option>
+    <option value="3">3 Players</option>
+    <option value="4" selected>4 Players</option>
+   </select>
+   <p>🟢 Green gets a shortcut and bonus turns!</p>
+  </div>
+  <button class="primary" id="start">START GAME</button>
+ </div>
 </div>
 
 <div class="overlay hidden" id="result">
-  <div class="dialog" style="text-align:center">
-    <div style="font-size:48px">🏆</div>
-    <h2 id="resultTitle">Winner!</h2>
-    <p id="resultText">Congratulations!</p>
-    <button class="primary" id="again">PLAY AGAIN</button>
-  </div>
+ <div class="dialog" style="text-align:center">
+  <div style="font-size:48px">🏆</div>
+  <h2 id="resultTitle">Winner!</h2>
+  <p id="resultText">Congratulations!</p>
+  <button class="primary" id="again">PLAY AGAIN</button>
+ </div>
 </div>
 
 <script>
 "use strict";
+const canvas=document.getElementById("board"),ctx=canvas.getContext("2d");
+const $=id=>document.getElementById(id);
+const COLORS=["#ff405b","#29c982","#ffd83d","#40a7ff"];
+const DICE=["","⚀","⚁","⚂","⚃","⚄","⚅"];
+const NAMES=["Red","Green","Yellow","Blue"];
 
-const canvas = document.getElementById("board");
-const ctx = canvas.getContext("2d");
-const $ = id => document.getElementById(id);
-
-const COLORS = ["#ff405b","#29c982","#ffd83d","#40a7ff"];
-const DARK   = ["#a81730","#087d4b","#b18b00","#1466b4"];
-const NAMES  = ["Red","Green","Yellow","Blue"];
-const DICE = ["","⚀","⚁","⚂","⚃","⚄","⚅"];
-
-/* 52-cell outer loop on a 15 x 15 board */
-const PATH = [
- [6,1],[6,2],[6,3],[6,4],[6,5],
- [5,6],[4,6],[3,6],[2,6],[1,6],[0,7],
- [1,8],[2,8],[3,8],[4,8],[5,8],
- [6,9],[6,10],[6,11],[6,12],[6,13],[7,14],
- [8,13],[8,12],[8,11],[8,10],[8,9],
- [9,8],[10,8],[11,8],[12,8],[13,8],[14,7],
- [13,6],[12,6],[11,6],[10,6],[9,6],
- [8,5],[8,4],[8,3],[8,2],[8,1],[7,0],
- [6,0],[5,0],[4,0],[3,0],[2,0],[1,0],[0,0],[0,1]
+const PATH=[
+[6,1],[6,2],[6,3],[6,4],[6,5],
+[5,6],[4,6],[3,6],[2,6],[1,6],[0,7],
+[1,8],[2,8],[3,8],[4,8],[5,8],
+[6,9],[6,10],[6,11],[6,12],[6,13],[7,14],
+[8,13],[8,12],[8,11],[8,10],[8,9],
+[9,8],[10,8],[11,8],[12,8],[13,8],[14,7],
+[13,6],[12,6],[11,6],[10,6],[9,6],
+[8,5],[8,4],[8,3],[8,2],[8,1],[7,0],
+[6,0],[5,0],[4,0],[3,0],[2,0],[1,0],[0,0],[0,1]
 ];
-
-/* Player-specific finish lanes, from outer path toward the centre */
-const LANES = [
- [[7,1],[7,2],[7,3],[7,4],[7,5]],
- [[1,7],[2,7],[3,7],[4,7],[5,7]],
- [[7,13],[7,12],[7,11],[7,10],[7,9]],
- [[13,7],[12,7],[11,7],[10,7],[9,7]]
+const LANES=[
+[[7,1],[7,2],[7,3],[7,4],[7,5]],
+[[1,7],[2,7],[3,7],[4,7],[5,7]],
+[[7,13],[7,12],[7,11],[7,10],[7,9]],
+[[13,7],[12,7],[11,7],[10,7],[9,7]]
 ];
+const START=[0,13,26,39];
+const SAFE=[0,8,13,21,26,34,39,47];
 
-/* Each player enters the common track at a different point */
-const START = [0,13,26,39];
-const SAFE = [0,8,13,21,26,34,39,47];
+let players=[],current=0,dice=null,mode="computer";
+let started=false,rolling=false,possible=[],gameOver=false;
+let playerCount=2,rollTimer=null,cpuTimer=null;
 
-let players = [];
-let current = 0;
-let dice = null;
-let mode = "computer";
-let started = false;
-let rolling = false;
-let possible = [];
-let gameOver = false;
-let playerCount = 2;
-let cpuTimer = null;
-
-function cellCenter(col,row){
-  return {x:(col+0.5)*40,y:(row+0.5)*40};
+/* Green shortcut: 40 outer-track steps, 5 lane steps, then finish.
+   Other players: 52 outer-track steps, 5 lane steps, then finish. */
+function maxProgress(pi){
+ return mode==="local"&&players[pi]?.colorIndex===1?45:57;
 }
+function cellCenter(c,r){return{x:(c+.5)*40,y:(r+.5)*40}}
 function sameCell(a,b){return a[0]===b[0]&&a[1]===b[1]}
 
 function makePlayers(){
-  const name = $("username").value.trim() || "Player 1";
-  const total = mode === "computer" ? 2 : playerCount;
-  const p = [];
-  for(let i=0;i<total;i++){
-    let colorIndex;
-    if(mode==="computer") colorIndex = i===0?0:2;
-    else colorIndex = i;
-    p.push({
-      name:i===0?name:(mode==="computer"?"Computer":NAMES[colorIndex]+" Player"),
-      colorIndex,
-      tokens:[-1,-1,-1,-1],
-      finished:0
-    });
-  }
-  return p;
+ const name=$("username").value.trim()||"Player 1";
+ const total=mode==="computer"?2:playerCount;
+ return Array.from({length:total},(_,i)=>{
+  const ci=mode==="computer"?(i===0?0:2):i;
+  return{name:i===0?name:(mode==="computer"?"Computer":NAMES[ci]+" Player"),
+   colorIndex:ci,tokens:[-1,-1,-1,-1],finished:0};
+ });
 }
-
 function cellOf(pi,progress){
-  const ci=players[pi].colorIndex;
-  if(progress<0) return null;
-  if(progress<52){
-    return PATH[(START[ci]+progress)%52];
-  }
-  if(progress<57) return LANES[ci][progress-52];
-  return [7,7];
+ const ci=players[pi].colorIndex;
+ if(progress<0)return null;
+ if(progress<52)return PATH[(START[ci]+progress)%52];
+ if(ci===1&&mode==="local"){
+  if(progress<45)return LANES[ci][progress-40];
+  return[7,7];
+ }
+ if(progress<57)return LANES[ci][progress-52];
+ return[7,7];
 }
-
 function tokenHome(ci,ti){
-  const homes=[
-    [[1.5,1.5],[3.5,1.5],[1.5,3.5],[3.5,3.5]],
-    [[10.5,1.5],[12.5,1.5],[10.5,3.5],[12.5,3.5]],
-    [[10.5,10.5],[12.5,10.5],[10.5,12.5],[12.5,12.5]],
-    [[1.5,10.5],[3.5,10.5],[1.5,12.5],[3.5,12.5]]
-  ];
-  return {x:homes[ci][ti][0]*40,y:homes[ci][ti][1]*40};
+ const homes=[
+ [[1.5,1.5],[3.5,1.5],[1.5,3.5],[3.5,3.5]],
+ [[10.5,1.5],[12.5,1.5],[10.5,3.5],[12.5,3.5]],
+ [[10.5,10.5],[12.5,10.5],[10.5,12.5],[12.5,12.5]],
+ [[1.5,10.5],[3.5,10.5],[1.5,12.5],[3.5,12.5]]
+ ];
+ return{x:homes[ci][ti][0]*40,y:homes[ci][ti][1]*40};
 }
-
-function roundedRect(x,y,w,h,r,fill,stroke){
-  ctx.beginPath();
-  ctx.roundRect(x,y,w,h,r);
-  ctx.fillStyle=fill;ctx.fill();
-  if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=2;ctx.stroke()}
-}
-
 function drawBoard(){
-  ctx.clearRect(0,0,600,600);
-  ctx.fillStyle="#f7f8ff";ctx.fillRect(0,0,600,600);
-
-  // Four coloured home areas
-  const areas=[
-    {x:0,y:0,c:COLORS[0]},
-    {x:360,y:0,c:COLORS[1]},
-    {x:360,y:360,c:COLORS[2]},
-    {x:0,y:360,c:COLORS[3]}
-  ];
-  for(const a of areas){
-    ctx.fillStyle=a.c;ctx.fillRect(a.x,a.y,240,240);
-    ctx.fillStyle="#ffffff";ctx.fillRect(a.x+40,a.y+40,160,160);
-    ctx.strokeStyle="#d7dced";ctx.lineWidth=2;ctx.strokeRect(a.x+40,a.y+40,160,160);
+ ctx.clearRect(0,0,600,600);
+ ctx.fillStyle="#f7f8ff";ctx.fillRect(0,0,600,600);
+ const areas=[
+ {x:0,y:0,c:COLORS[0]},{x:360,y:0,c:COLORS[1]},
+ {x:360,y:360,c:COLORS[2]},{x:0,y:360,c:COLORS[3]}
+ ];
+ for(const a of areas){
+  ctx.fillStyle=a.c;ctx.fillRect(a.x,a.y,240,240);
+  ctx.fillStyle="#fff";ctx.fillRect(a.x+40,a.y+40,160,160);
+  ctx.strokeStyle="#d7dced";ctx.lineWidth=2;
+  ctx.strokeRect(a.x+40,a.y+40,160,160);
+ }
+ for(let i=0;i<PATH.length;i++){
+  const[c,r]=PATH[i];let fill="#fff";
+  if(i===START[0])fill=COLORS[0];
+  else if(i===START[1])fill=COLORS[1];
+  else if(i===START[2])fill=COLORS[2];
+  else if(i===START[3])fill=COLORS[3];
+  else if(SAFE.includes(i))fill="#e8ecf7";
+  ctx.fillStyle=fill;ctx.fillRect(c*40,r*40,40,40);
+  ctx.strokeStyle="#bdc4d7";ctx.lineWidth=1.5;
+  ctx.strokeRect(c*40,r*40,40,40);
+  if(SAFE.includes(i)){
+   ctx.fillStyle="#5d6684";ctx.font="22px Arial";
+   ctx.textAlign="center";ctx.textBaseline="middle";
+   ctx.fillText("★",(c+.5)*40,(r+.5)*40);
   }
-
-  // Main track cells
-  for(let i=0;i<PATH.length;i++){
-    const [col,row]=PATH[i];
-    const {x,y}=cellCenter(col,row);
-    let fill="#fff";
-    if(i===START[0])fill=COLORS[0];
-    else if(i===START[1])fill=COLORS[1];
-    else if(i===START[2])fill=COLORS[2];
-    else if(i===START[3])fill=COLORS[3];
-    else if(SAFE.includes(i))fill="#e8ecf7";
-    ctx.fillStyle=fill;ctx.fillRect(col*40,row*40,40,40);
-    ctx.strokeStyle="#bdc4d7";ctx.lineWidth=1.5;ctx.strokeRect(col*40,row*40,40,40);
-    if(SAFE.includes(i)){
-      ctx.fillStyle="#5d6684";ctx.font="22px Arial";ctx.textAlign="center";ctx.textBaseline="middle";
-      ctx.fillText("★",x,y+1);
-    }
+ }
+ for(let ci=0;ci<4;ci++){
+  for(let j=0;j<5;j++){
+   const[c,r]=LANES[ci][j];
+   ctx.fillStyle=COLORS[ci];ctx.globalAlpha=.25+.12*j;
+   ctx.fillRect(c*40,r*40,40,40);ctx.globalAlpha=1;
+   ctx.strokeStyle="#b8bfd3";ctx.lineWidth=1.5;
+   ctx.strokeRect(c*40,r*40,40,40);
   }
+ }
+ const triangles=[
+ {p:[[240,240],[360,240],[300,300]],c:COLORS[1]},
+ {p:[[360,240],[360,360],[300,300]],c:COLORS[2]},
+ {p:[[360,360],[240,360],[300,300]],c:COLORS[3]},
+ {p:[[240,360],[240,240],[300,300]],c:COLORS[0]}
+ ];
+ for(const t of triangles){
+  ctx.beginPath();ctx.moveTo(...t.p[0]);ctx.lineTo(...t.p[1]);
+  ctx.lineTo(...t.p[2]);ctx.closePath();ctx.fillStyle=t.c;ctx.fill();
+ }
+ ctx.beginPath();ctx.arc(300,300,26,0,Math.PI*2);
+ ctx.fillStyle="#11182e";ctx.fill();
+ ctx.fillStyle="#fff";ctx.font="bold 12px Arial";
+ ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("N99",300,300);
 
-  // Finish lanes
-  for(let ci=0;ci<4;ci++){
-    for(let j=0;j<5;j++){
-      const [col,row]=LANES[ci][j];
-      ctx.fillStyle=COLORS[ci];
-      ctx.globalAlpha=.25+.12*j;
-      ctx.fillRect(col*40,row*40,40,40);
-      ctx.globalAlpha=1;
-      ctx.strokeStyle="#b8bfd3";ctx.lineWidth=1.5;ctx.strokeRect(col*40,row*40,40,40);
-    }
+ // Show Green's shortcut lane with a subtle glow in local mode
+ if(mode==="local"){
+  ctx.save();ctx.shadowColor=COLORS[1];ctx.shadowBlur=10;
+  for(const[c,r] of LANES[1]){
+   ctx.strokeStyle=COLORS[1];ctx.lineWidth=2;
+   ctx.strokeRect(c*40+3,r*40+3,34,34);
   }
-
-  // Centre finish triangles
-  ctx.beginPath();ctx.moveTo(240,240);ctx.lineTo(360,240);ctx.lineTo(300,300);ctx.closePath();
-  ctx.fillStyle=COLORS[1];ctx.fill();
-  ctx.beginPath();ctx.moveTo(360,240);ctx.lineTo(360,360);ctx.lineTo(300,300);ctx.closePath();
-  ctx.fillStyle=COLORS[2];ctx.fill();
-  ctx.beginPath();ctx.moveTo(360,360);ctx.lineTo(240,360);ctx.lineTo(300,300);ctx.closePath();
-  ctx.fillStyle=COLORS[3];ctx.fill();
-  ctx.beginPath();ctx.moveTo(240,360);ctx.lineTo(240,240);ctx.lineTo(300,300);ctx.closePath();
-  ctx.fillStyle=COLORS[0];ctx.fill();
-  ctx.fillStyle="#11182e";ctx.beginPath();ctx.arc(300,300,26,0,Math.PI*2);ctx.fill();
-  ctx.fillStyle="#fff";ctx.font="bold 12px Arial";ctx.textAlign="center";ctx.textBaseline="middle";
-  ctx.fillText("N99",300,300);
-
-  // Home token circles
-  for(let ci=0;ci<4;ci++){
-    for(let ti=0;ti<4;ti++){
-      const p=tokenHome(ci,ti);
-      ctx.beginPath();ctx.arc(p.x,p.y,14,0,Math.PI*2);
-      ctx.fillStyle=COLORS[ci];ctx.fill();
-      ctx.strokeStyle="#fff";ctx.lineWidth=3;ctx.stroke();
-    }
-  }
+  ctx.restore();
+ }
+ for(let ci=0;ci<4;ci++)for(let ti=0;ti<4;ti++){
+  const p=tokenHome(ci,ti);
+  ctx.beginPath();ctx.arc(p.x,p.y,14,0,Math.PI*2);
+  ctx.fillStyle=COLORS[ci];ctx.fill();ctx.strokeStyle="#fff";
+  ctx.lineWidth=3;ctx.stroke();
+ }
 }
-
 function tokenPositions(){
-  const list=[];
-  for(let pi=0;pi<players.length;pi++){
-    const pl=players[pi];
-    for(let ti=0;ti<4;ti++){
-      const progress=pl.tokens[ti];
-      let pos;
-      if(progress<0) pos=tokenHome(pl.colorIndex,ti);
-      else {
-        const cell=cellOf(pi,progress);
-        pos=cellCenter(cell[0],cell[1]);
-      }
-      list.push({pi,ti,progress,x:pos.x,y:pos.y});
-    }
-  }
-  // Offset tokens sharing a cell, so each remains tappable
-  const groups=new Map();
-  for(const t of list){
-    if(t.progress<0)continue;
-    const k=Math.round(t.x)+","+Math.round(t.y);
-    if(!groups.has(k))groups.set(k,[]);
-    groups.get(k).push(t);
-  }
-  for(const group of groups.values()){
-    if(group.length>1){
-      group.forEach((t,i)=>{
-        const angle=(2*Math.PI*i/group.length)-Math.PI/2;
-        t.x+=Math.cos(angle)*9;t.y+=Math.sin(angle)*9;
-      });
-    }
-  }
-  return list;
+ const list=[];
+ for(let pi=0;pi<players.length;pi++)for(let ti=0;ti<4;ti++){
+  const progress=players[pi].tokens[ti];
+  let p;
+  if(progress<0)p=tokenHome(players[pi].colorIndex,ti);
+  else{const c=cellOf(pi,progress);p=cellCenter(c[0],c[1])}
+  list.push({pi,ti,progress,x:p.x,y:p.y});
+ }
+ const groups=new Map();
+ for(const t of list){
+  if(t.progress<0)continue;
+  const k=Math.round(t.x)+","+Math.round(t.y);
+  if(!groups.has(k))groups.set(k,[]);
+  groups.get(k).push(t);
+ }
+ for(const group of groups.values())if(group.length>1)
+  group.forEach((t,i)=>{
+   const a=2*Math.PI*i/group.length-Math.PI/2;
+   t.x+=Math.cos(a)*9;t.y+=Math.sin(a)*9;
+  });
+ return list;
 }
-
 function drawTokens(){
-  const list=tokenPositions();
-  for(const t of list){
-    const ci=players[t.pi].colorIndex;
-    const isChoice=possible.includes(t.ti)&&t.pi===current&&dice!==null;
-    if(isChoice){
-      ctx.beginPath();ctx.arc(t.x,t.y,19,0,Math.PI*2);
-      ctx.fillStyle="#fff";ctx.fill();
-      ctx.strokeStyle=COLORS[ci];ctx.lineWidth=4;ctx.stroke();
-    }
-    ctx.beginPath();ctx.arc(t.x,t.y,13,0,Math.PI*2);
-    ctx.fillStyle=COLORS[ci];ctx.fill();
-    ctx.strokeStyle="#fff";ctx.lineWidth=2.5;ctx.stroke();
-    ctx.beginPath();ctx.arc(t.x-4,t.y-4,4,0,Math.PI*2);
-    ctx.fillStyle="#ffffffa8";ctx.fill();
-    if(t.progress===57){
-      ctx.fillStyle="#111";ctx.font="bold 10px Arial";
-      ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("✓",t.x,t.y);
-    }
+ for(const t of tokenPositions()){
+  const color=COLORS[players[t.pi].colorIndex];
+  if(t.pi===current&&dice!==null&&possible.includes(t.ti)){
+   ctx.beginPath();ctx.arc(t.x,t.y,19,0,Math.PI*2);
+   ctx.fillStyle="#fff";ctx.fill();ctx.strokeStyle=color;
+   ctx.lineWidth=4;ctx.stroke();
   }
+  ctx.beginPath();ctx.arc(t.x,t.y,13,0,Math.PI*2);
+  ctx.fillStyle=color;ctx.fill();ctx.strokeStyle="#fff";
+  ctx.lineWidth=2.5;ctx.stroke();
+  ctx.beginPath();ctx.arc(t.x-4,t.y-4,4,0,Math.PI*2);
+  ctx.fillStyle="#ffffffa8";ctx.fill();
+  if(t.progress===maxProgress(t.pi)){
+   ctx.fillStyle="#111";ctx.font="bold 10px Arial";
+   ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText("✓",t.x,t.y);
+  }
+ }
 }
-
-function draw(){
-  drawBoard();
-  if(players.length)drawTokens();
-}
-
-function setStatus(text){
-  $("status").textContent=text;
-}
-
-function isHumanTurn(){
-  return mode!=="computer" || current===0;
-}
-
+function draw(){drawBoard();if(players.length)drawTokens()}
+function setStatus(t){$("status").textContent=t}
+function isHumanTurn(){return mode!=="computer"||current===0}
 function updateControls(){
-  const pl=players[current];
-  if(!started||!pl){
-    $("roll").disabled=true;
-    $("die").disabled=true;
-    return;
-  }
-  const cpu=mode==="computer"&&current!==0;
-  $("roll").disabled=rolling||dice!==null||gameOver||cpu;
-  $("die").disabled=rolling||dice!==null||gameOver||cpu;
-  $("die").textContent=dice===null?"⚀":DICE[dice];
+ const cpu=mode==="computer"&&current!==0;
+ $("roll").disabled=!started||rolling||dice!==null||gameOver||cpu;
+ $("die").disabled=!started||rolling||dice!==null||gameOver||cpu;
+ $("die").textContent=dice===null?"⚀":DICE[dice];
 }
-
 function startGame(){
-  clearTimeout(cpuTimer);
-  players=makePlayers();
-  current=0;dice=null;rolling=false;possible=[];gameOver=false;started=true;
-  $("setup").classList.add("hidden");
-  $("result").classList.add("hidden");
-  $("die").textContent="⚀";
-  setStatus(players[0].name+"'s turn — roll the dice!");
-  draw();updateControls();
+ clearTimeout(cpuTimer);clearInterval(rollTimer);
+ players=makePlayers();current=0;dice=null;rolling=false;
+ possible=[];gameOver=false;started=true;
+ $("setup").classList.add("hidden");$("result").classList.add("hidden");
+ $("die").textContent="⚀";
+ setStatus(players[0].name+"'s turn — roll the dice!");
+ draw();updateControls();
 }
-
 function nextPlayer(){
-  dice=null;possible=[];rolling=false;
-  if(gameOver)return;
-  current=(current+1)%players.length;
-  setStatus(players[current].name+"'s turn — roll the dice!");
-  draw();updateControls();
-  if(mode==="computer"&&current!==0){
-    cpuTimer=setTimeout(cpuRoll,850);
-  }
+ dice=null;possible=[];rolling=false;
+ if(gameOver)return;
+ current=(current+1)%players.length;
+ setStatus(players[current].name+"'s turn — roll the dice!");
+ draw();updateControls();
+ if(mode==="computer"&&current!==0)cpuTimer=setTimeout(cpuRoll,850);
 }
-
 function validMoves(pi,value){
-  const pl=players[pi];
-  const out=[];
-  for(let ti=0;ti<4;ti++){
-    const pos=pl.tokens[ti];
-    if(pos===57)continue;
-    if(pos===-1){
-      if(value===6)out.push(ti);
-    }else if(pos+value<=57){
-      out.push(ti);
-    }
+ const out=[],max=maxProgress(pi);
+ for(let ti=0;ti<4;ti++){
+  const pos=players[pi].tokens[ti];
+  if(pos===max)continue;
+  if(pos===-1&&value===6)out.push(ti);
+  else if(pos>=0&&pos+value<=max)out.push(ti);
+ }
+ return out;
+}
+
+/* Green gets a 40% chance of rolling a six in local mode.
+   Other players use a fair 1-to-6 roll. */
+function getRollValue(){
+ if(mode==="local"&&players[current].colorIndex===1){
+  if(Math.random()<0.40)return 6;
+  return 1+Math.floor(Math.random()*5);
+ }
+ return 1+Math.floor(Math.random()*6);
+}
+function animateRoll(isCPU=false){
+ if(!started||rolling||dice!==null||gameOver)return;
+ if(!isCPU&&!isHumanTurn())return;
+ rolling=true;updateControls();$("die").classList.add("roll");
+ let spins=0;
+ rollTimer=setInterval(()=>{
+  $("die").textContent=DICE[1+Math.floor(Math.random()*6)];
+  spins++;
+  if(spins>=10){
+   clearInterval(rollTimer);$("die").classList.remove("roll");
+   dice=getRollValue();rolling=false;afterRoll();
   }
-  return out;
+ },75);
 }
-
-function rollDice(){
-  if(!started||rolling||dice!==null||gameOver||!isHumanTurn())return;
-  rolling=true;
-  $("die").classList.add("roll");
-  $("roll").disabled=true;
-  let spins=0;
-  const spin=setInterval(()=>{
-    $("die").textContent=DICE[1+Math.floor(Math.random()*6)];
-    spins++;
-    if(spins>=10){
-      clearInterval(spin);
-      $("die").classList.remove("roll");
-      dice=1+Math.floor(Math.random()*6);
-      rolling=false;
-      afterRoll();
-    }
-  },75);
-}
-
-function cpuRoll(){
-  if(gameOver||mode!=="computer"||current===0||dice!==null)return;
-  rolling=true;
-  $("die").classList.add("roll");
-  $("roll").disabled=true;
-  let spins=0;
-  const spin=setInterval(()=>{
-    $("die").textContent=DICE[1+Math.floor(Math.random()*6)];
-    spins++;
-    if(spins>=8){
-      clearInterval(spin);
-      $("die").classList.remove("roll");
-      dice=1+Math.floor(Math.random()*6);
-      rolling=false;
-      afterRoll();
-    }
-  },80);
-}
-
+function rollDice(){animateRoll(false)}
+function cpuRoll(){animateRoll(true)}
 function afterRoll(){
-  $("die").textContent=DICE[dice];
-  possible=validMoves(current,dice);
-  const sixText=dice===6?" Rolled a 6! Extra turn if a move is made.":"";
-  if(possible.length===0){
-    setStatus(players[current].name+" rolled "+dice+". No valid move.");
-    updateControls();
-    draw();
-    setTimeout(()=>{
-      if(!gameOver)nextPlayer();
-    },900);
-    return;
-  }
-  setStatus(players[current].name+" rolled "+dice+" — tap a glowing token."+sixText);
+ $("die").textContent=DICE[dice];
+ possible=validMoves(current,dice);
+ if(!possible.length){
+  setStatus(players[current].name+" rolled "+dice+". No valid move.");
   draw();updateControls();
-  if(mode==="computer"&&current!==0){
-    cpuTimer=setTimeout(cpuChoose,700);
-  }
+  setTimeout(()=>{if(!gameOver)nextPlayer()},900);return;
+ }
+ setStatus(players[current].name+" rolled "+dice+" — tap a glowing token.");
+ draw();updateControls();
+ if(mode==="computer"&&current!==0)cpuTimer=setTimeout(cpuChoose,700);
 }
-
 function isSafe(progress,ci){
-  if(progress<0||progress>=52)return true;
-  const absolute=(START[ci]+progress)%52;
-  return SAFE.includes(absolute);
+ if(progress<0||progress>=52)return true;
+ return SAFE.includes((START[ci]+progress)%52);
 }
-
 function moveToken(ti){
-  if(dice===null||!possible.includes(ti)||rolling||gameOver)return;
-  const pl=players[current];
-  const old=pl.tokens[ti];
-  pl.tokens[ti]=old===-1?0:old+dice;
-  const newPos=pl.tokens[ti];
-  let captured=false;
+ if(dice===null||!possible.includes(ti)||rolling||gameOver)return;
+ const pl=players[current],ci=pl.colorIndex;
+ const newPos=pl.tokens[ti]===-1?0:pl.tokens[ti]+dice;
+ pl.tokens[ti]=newPos;
+ let captured=false;
 
-  // Capture opponent tokens on a non-safe common-track cell
-  if(newPos>=0&&newPos<52&&!isSafe(newPos,pl.colorIndex)){
-    const cell=cellOf(current,newPos);
-    for(let pi=0;pi<players.length;pi++){
-      if(pi===current)continue;
-      const opponent=players[pi];
-      for(let oi=0;oi<4;oi++){
-        const op=opponent.tokens[oi];
-        if(op<0||op>=52)continue;
-        const oc=cellOf(pi,op);
-        if(sameCell(cell,oc)){
-          opponent.tokens[oi]=-1;
-          captured=true;
-        }
-      }
+ // Capture on unsafe shared track cells
+ if(newPos>=0&&newPos<52&&!isSafe(newPos,ci)){
+  const cell=cellOf(current,newPos);
+  for(let pi=0;pi<players.length;pi++){
+   if(pi===current)continue;
+   for(let oi=0;oi<4;oi++){
+    const op=players[pi].tokens[oi];
+    if(op>=0&&op<52&&sameCell(cell,cellOf(pi,op))){
+     players[pi].tokens[oi]=-1;captured=true;
     }
+   }
   }
+ }
+ if(newPos===maxProgress(current))pl.finished++;
+ draw();
 
-  if(newPos===57){
-    pl.finished++;
-  }
+ if(pl.finished===4){
+  gameOver=true;
+  $("resultTitle").textContent="🏆 "+pl.name+" Wins!";
+  $("resultText").textContent="All four tokens reached home. Congratulations!";
+  $("result").classList.remove("hidden");updateControls();return;
+ }
 
-  draw();
+ const greenBonus=mode==="local"&&ci===1;
+ const bonus=dice===6||captured||newPos===maxProgress(current)||greenBonus;
+ dice=null;possible=[];rolling=false;$("die").textContent="⚀";
 
-  if(pl.finished===4){
-    gameOver=true;
-    $("resultTitle").textContent="🏆 "+pl.name+" Wins!";
-    $("resultText").textContent="Amazing game! All four tokens reached home.";
-    $("result").classList.remove("hidden");
-    updateControls();
-    return;
-  }
-
-  const bonus=(dice===6)||captured||newPos===57;
-  const oldDice=dice;
-  dice=null;possible=[];rolling=false;
-  $("die").textContent="⚀";
-
-  if(bonus){
-    setStatus(captured?"Capture! "+pl.name+" gets another turn!":
-      newPos===57?"Token reached home! Extra turn!":
-      "Rolled a 6! "+pl.name+" gets another turn!");
-    updateControls();
-    draw();
-    if(mode==="computer"&&current!==0)cpuTimer=setTimeout(cpuRoll,850);
+ if(bonus){
+  if(greenBonus){
+   setStatus("🟢 Green advantage! Extra turn — roll again!");
   }else{
-    setStatus("Moved "+NAMES[pl.colorIndex]+" token. Next player's turn.");
-    updateControls();
-    setTimeout(()=>{if(!gameOver)nextPlayer()},500);
+   setStatus(captured?"Capture! "+pl.name+" gets another turn!":
+    newPos===maxProgress(current)?"Token reached home! Extra turn!":
+    "Rolled a 6! "+pl.name+" gets another turn!");
   }
+  updateControls();draw();
+  if(mode==="computer"&&current!==0)cpuTimer=setTimeout(cpuRoll,850);
+ }else{
+  setStatus("Token moved. Next player's turn.");
+  updateControls();
+  setTimeout(()=>{if(!gameOver)nextPlayer()},500);
+ }
 }
-
 function cpuChoose(){
-  if(gameOver||mode!=="computer"||current===0||dice===null)return;
-  if(!possible.length){nextPlayer();return;}
-  const pl=players[current];
-
-  // Prefer finishing a token, then leaving home, then advancing furthest
-  let chosen=possible[0];
-  let best=-999;
-  for(const ti of possible){
-    const pos=pl.tokens[ti];
-    const next=pos===-1?0:pos+dice;
-    let score=next;
-    if(next===57)score+=1000;
-    if(pos===-1)score+=80;
-    if(next<52&&!isSafe(next,pl.colorIndex)){
-      const cell=cellOf(current,next);
-      for(let pi=0;pi<players.length;pi++){
-        if(pi===current)continue;
-        for(const op of players[pi].tokens){
-          if(op>=0&&op<52&&sameCell(cell,cellOf(pi,op)))score+=150;
-        }
-      }
+ if(gameOver||mode!=="computer"||current===0||dice===null)return;
+ if(!possible.length){nextPlayer();return}
+ const pl=players[current];let chosen=possible[0],best=-999;
+ for(const ti of possible){
+  const pos=pl.tokens[ti],next=pos===-1?0:pos+dice;
+  let score=next;
+  if(next===maxProgress(current))score+=1000;
+  if(pos===-1)score+=80;
+  if(next<52&&!isSafe(next,pl.colorIndex)){
+   const cell=cellOf(current,next);
+   for(let pi=0;pi<players.length;pi++){
+    if(pi===current)continue;
+    for(const op of players[pi].tokens){
+     if(op>=0&&op<52&&sameCell(cell,cellOf(pi,op)))score+=150;
     }
-    if(score>best){best=score;chosen=ti;}
+   }
   }
-  moveToken(chosen);
+  if(score>best){best=score;chosen=ti}
+ }
+ moveToken(chosen);
 }
-
-function canvasPoint(event){
-  const rect=canvas.getBoundingClientRect();
-  return {
-    x:(event.clientX-rect.left)*600/rect.width,
-    y:(event.clientY-rect.top)*600/rect.height
-  };
+function canvasPoint(e){
+ const r=canvas.getBoundingClientRect();
+ return{x:(e.clientX-r.left)*600/r.width,y:(e.clientY-r.top)*600/r.height};
 }
-
-canvas.addEventListener("pointerdown",event=>{
-  if(!started||dice===null||rolling||gameOver||!isHumanTurn())return;
-  const p=canvasPoint(event);
-  const tokens=tokenPositions().filter(t=>t.pi===current&&possible.includes(t.ti));
-  let best=null,dist=Infinity;
-  for(const t of tokens){
-    const d=Math.hypot(p.x-t.x,p.y-t.y);
-    if(d<dist&&d<27){best=t;dist=d;}
-  }
-  if(best)moveToken(best.ti);
+canvas.addEventListener("pointerdown",e=>{
+ if(!started||dice===null||rolling||gameOver||!isHumanTurn())return;
+ const p=canvasPoint(e);
+ const choices=tokenPositions().filter(t=>t.pi===current&&possible.includes(t.ti));
+ let best=null,dist=Infinity;
+ for(const t of choices){
+  const d=Math.hypot(p.x-t.x,p.y-t.y);
+  if(d<dist&&d<27){best=t;dist=d}
+ }
+ if(best)moveToken(best.ti);
 });
 
 $("roll").addEventListener("click",rollDice);
 $("die").addEventListener("click",rollDice);
 $("start").addEventListener("click",startGame);
-$("again").addEventListener("click",()=>{
-  $("result").classList.add("hidden");
-  startGame();
-});
-
+$("again").addEventListener("click",startGame);
 $("computerMode").addEventListener("click",()=>{
-  mode="computer";
-  $("computerMode").classList.add("selected");
-  $("localMode").classList.remove("selected");
-  $("playersRow").style.display="none";
+ mode="computer";
+ $("computerMode").classList.add("selected");
+ $("localMode").classList.remove("selected");
+ $("playersRow").style.display="none";
 });
 $("localMode").addEventListener("click",()=>{
-  mode="local";
-  $("localMode").classList.add("selected");
-  $("computerMode").classList.remove("selected");
-  $("playersRow").style.display="block";
+ mode="local";
+ $("localMode").classList.add("selected");
+ $("computerMode").classList.remove("selected");
+ $("playersRow").style.display="block";
 });
-
+$("players").addEventListener("change",e=>playerCount=Number(e.target.value));
 window.addEventListener("resize",draw);
 
-// Draw the board behind the opening popup
-draw();
-updateControls();
-
-// Keep the N99 GAMES intro visible for six seconds
+draw();updateControls();
 setTimeout(()=>{
-  $("welcome").classList.add("hidden");
-  $("setup").classList.remove("hidden");
+ $("welcome").classList.add("hidden");
+ $("setup").classList.remove("hidden");
 },6000);
 </script>
 </body>
