@@ -112,6 +112,49 @@ button{cursor:pointer}
 </style>
 </head>
 
+<script>
+(() => {
+  let audioCtx;
+
+  function playSound(type) {
+    try {
+      audioCtx ||= new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === "suspended") audioCtx.resume();
+
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+
+      const sounds = {
+        flap:  { freq: 480, end: 680, duration: 0.09, wave: "square" },
+        score: { freq: 650, end: 1050, duration: 0.14, wave: "sine" },
+        over:  { freq: 320, end: 100, duration: 0.35, wave: "triangle" }
+      };
+
+      const s = sounds[type];
+      if (!s) return;
+
+      osc.type = s.wave;
+      osc.frequency.setValueAtTime(s.freq, now);
+      osc.frequency.exponentialRampToValueAtTime(s.end, now + s.duration);
+
+      gain.gain.setValueAtTime(0.0001, now);
+      gain.gain.exponentialRampToValueAtTime(0.12, now + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + s.duration);
+
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + s.duration + 0.02);
+    } catch (e) {
+      // Sound unavailable: game continues normally.
+    }
+  }
+
+  window.flappySound = playSound;
+})();
+</script>
+
 <body>
 
 <!-- N99 welcome popup -->
