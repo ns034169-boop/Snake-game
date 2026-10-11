@@ -1,1 +1,503 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#030906">
+<title>N99 Flappy Bird</title>
+
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#030906;color:#dcffe5;font-family:Arial,sans-serif;overscroll-behavior:none}
+button,input{font:inherit}
+button{cursor:pointer}
+.screen{position:fixed;inset:0;width:100%;height:100%;height:100dvh;overflow:hidden}
+
+/* Shared neon background */
+#login{
+ display:flex;align-items:center;justify-content:center;padding:24px;
+ background:radial-gradient(ellipse at 20% 20%,#123c28 0%,transparent 45%),
+ radial-gradient(ellipse at 80% 80%,#113a31 0%,transparent 45%),#030806
+}
+#login::before{
+ content:"";position:absolute;inset:-50%;
+ background:repeating-linear-gradient(0deg,transparent 0,transparent 38px,rgba(69,255,133,.08) 39px,transparent 41px);
+ animation:scan 9s linear infinite;pointer-events:none
+}
+#login::after{
+ content:"";position:absolute;width:75vmax;height:75vmax;border:1px solid rgba(66,255,134,.13);
+ border-radius:50%;box-shadow:0 0 70px rgba(35,255,118,.08),inset 0 0 70px rgba(35,255,118,.06);
+ animation:pulse 5s ease-in-out infinite alternate;pointer-events:none
+}
+@keyframes scan{from{transform:translateY(0) rotate(-8deg)}to{transform:translateY(120px) rotate(-8deg)}}
+@keyframes pulse{from{transform:scale(.85);opacity:.35}to{transform:scale(1.15);opacity:.9}}
+
+.login-box{position:relative;z-index:2;width:min(100%,360px);display:flex;flex-direction:column;gap:14px;text-align:center}
+.created{margin-bottom:8px;color:#9bffb6;font-size:14px;letter-spacing:3px;text-transform:uppercase;text-shadow:0 0 15px #35ff78}
+#username{
+ width:100%;min-height:54px;padding:14px 16px;color:#e4ffeb;
+ background:rgba(0,15,7,.8);border:1px solid #2cff72;border-radius:12px;
+ outline:none;text-align:center;font-size:17px;touch-action:auto
+}
+#username::placeholder{color:#8aa995}
+#startBtn{width:100%;min-height:54px;border:0;border-radius:12px;background:#39ff78;color:#041108;font-weight:800;letter-spacing:2px}
+
+/* Six-second welcome popup */
+#welcomePopup{
+ position:fixed;inset:0;z-index:10000;display:flex;
+ align-items:center;justify-content:center;padding:22px;
+ background:rgba(0,5,2,.92);backdrop-filter:blur(10px);
+ transition:opacity .35s ease,visibility .35s ease
+}
+#welcomePopup.hide{opacity:0;visibility:hidden;pointer-events:none}
+.welcome-card{
+ width:min(100%,360px);padding:24px;border:1px solid #35ff79;border-radius:20px;
+ background:linear-gradient(145deg,#102719,#030906);
+ box-shadow:0 0 35px rgba(53,255,121,.18);animation:popupIn .4s ease
+}
+@keyframes popupIn{from{transform:scale(.9);opacity:0}to{transform:scale(1);opacity:1}}
+.welcome-title{text-align:center;color:#55ff88;font-size:26px;font-weight:900;letter-spacing:3px}
+.welcome-subtitle{text-align:center;color:#a8c9b1;font-size:13px;margin:8px 0 20px}
+.game-link{
+ display:flex;justify-content:space-between;align-items:center;gap:10px;
+ margin-top:10px;padding:13px;border:1px solid #245b35;border-radius:12px;
+ color:#e0ffe8;text-decoration:none;background:#0b1c11
+}
+.game-link small{display:block;margin-top:4px;color:#91b79c}
+.game-link.disabled{opacity:.6}
+.welcome-timer{margin-top:20px;color:#55ff88;text-align:center;font-size:12px}
+
+/* Full-screen game */
+#gameScreen{display:none;background:#030906}
+#gameCanvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none}
+.hud{
+ position:absolute;top:max(16px,env(safe-area-inset-top));left:0;right:0;
+ z-index:2;display:flex;justify-content:space-between;align-items:flex-start;
+ gap:10px;padding:0 16px;pointer-events:none
+}
+.brand{color:#54ff8b;font-size:18px;font-weight:900;letter-spacing:2px;text-shadow:0 0 12px #16b94e}
+.scorebox{
+ min-width:82px;padding:8px 13px;border:1px solid #2b7542;border-radius:12px;
+ background:rgba(3,15,7,.8);text-align:center
+}
+.score-label{font-size:10px;letter-spacing:2px;color:#94bba0}
+.score-value{font-size:23px;font-weight:bold;color:#80ffa1;margin-top:3px}
+#fullBtn{pointer-events:auto;min-width:42px;min-height:42px;padding:8px;border:1px solid #286b3e;border-radius:10px;background:#0b1c11;color:#8cffaa}
+.hud-right{display:flex;align-items:flex-start;gap:7px}
+#overlay{
+ position:absolute;inset:0;z-index:3;display:flex;align-items:center;justify-content:center;
+ padding:24px;background:rgba(0,8,3,.35);text-align:center
+}
+#overlay.hidden{display:none}
+.panel{
+ width:min(100%,320px);padding:26px 22px;border:1px solid #37ef73;border-radius:20px;
+ background:rgba(3,15,7,.94);box-shadow:0 0 35px rgba(45,255,110,.13)
+}
+#panelTitle{color:#68ff93;font-size:27px;font-weight:900;letter-spacing:2px;text-shadow:0 0 12px #1abf50}
+#panelText{margin:12px 0 20px;color:#b2d9bc;line-height:1.5;font-size:14px}
+.action-btn{
+ width:100%;min-height:50px;border:0;border-radius:12px;
+ background:#39ff78;color:#041108;font-weight:900;letter-spacing:1px
+}
+.hint{
+ position:absolute;z-index:2;bottom:max(20px,env(safe-area-inset-bottom));
+ left:0;right:0;text-align:center;color:#9ac9a7;font-size:12px;
+ text-shadow:0 1px 6px #000;pointer-events:none
+}
+@media(max-height:500px){
+ .brand{font-size:14px}.scorebox{padding:5px 9px}
+ .score-value{font-size:18px}.panel{padding:18px}
+}
+</style>
+</head>
+
+<body>
+
+<!-- N99 welcome popup -->
+<div id="welcomePopup">
+ <div class="welcome-card">
+  <div class="welcome-title">N99 GAMES</div>
+  <div class="welcome-subtitle">Welcome to your gaming zone!</div>
+
+  <a class="game-link" href="index.html">
+   <span>🐍 <b>Snake Game</b><small>Play Snake</small></span>
+   <span>↗</span>
+  </a>
+
+  <a class="game-link" href="#flappy" id="flappyLink">
+   <span>🟢 <b>Flappy Bird</b><small>Available now</small></span>
+   <span>▶</span>
+  </a>
+
+  <div class="game-link disabled">
+   <span>🎲 <b>Ludo</b><small>Coming soon</small></span>
+   <span>🔒</span>
+  </div>
+
+  <div class="welcome-timer" id="welcomeTimer">Continuing in 6 seconds…</div>
+ </div>
+</div>
+
+<!-- Username screen -->
+<section id="login" class="screen">
+ <form id="loginForm" class="login-box">
+  <div class="created">Created by Nikhil</div>
+  <input id="username" type="text" maxlength="18" placeholder="Enter username" autocomplete="nickname" required>
+  <button id="startBtn" type="submit">START</button>
+ </form>
+</section>
+
+<!-- Game screen -->
+<section id="gameScreen" class="screen">
+ <canvas id="gameCanvas"></canvas>
+
+ <div class="hud">
+  <div class="brand">N99 FLAPPY</div>
+  <div class="hud-right">
+   <div class="scorebox">
+    <div class="score-label">SCORE</div>
+    <div class="score-value" id="score">0</div>
+   </div>
+   <div class="scorebox">
+    <div class="score-label">BEST</div>
+    <div class="score-value" id="best">0</div>
+   </div>
+   <button id="fullBtn" aria-label="Fullscreen">⛶</button>
+  </div>
+ </div>
+
+ <div id="overlay">
+  <div class="panel">
+   <div id="panelTitle">READY?</div>
+   <div id="panelText">Tap to fly. Avoid the neon pipes!</div>
+   <button class="action-btn" id="playBtn">PLAY</button>
+  </div>
+ </div>
+
+ <div class="hint" id="hint">TAP ANYWHERE TO FLY</div>
+</section>
+
+<script>
+const popup=document.getElementById("welcomePopup");
+const timerText=document.getElementById("welcomeTimer");
+const login=document.getElementById("login");
+const loginForm=document.getElementById("loginForm");
+const usernameInput=document.getElementById("username");
+const gameScreen=document.getElementById("gameScreen");
+const canvas=document.getElementById("gameCanvas");
+const ctx=canvas.getContext("2d");
+const overlay=document.getElementById("overlay");
+const panelTitle=document.getElementById("panelTitle");
+const panelText=document.getElementById("panelText");
+const playBtn=document.getElementById("playBtn");
+const scoreEl=document.getElementById("score");
+const bestEl=document.getElementById("best");
+const hint=document.getElementById("hint");
+
+let username="";
+let score=0,best=0;
+let state="ready";
+let bird={x:90,y:300,vy:0};
+let pipes=[];
+let frame=0;
+let lastTime=0;
+let animationId=0;
+let logicalW=360,logicalH=640;
+let scaleX=1,scaleY=1;
+
+const GRAVITY=0.34;
+const FLAP=-6.2;
+const BIRD_SIZE=22;
+const PIPE_WIDTH=58;
+const PIPE_GAP=170;
+const PIPE_SPACING=205;
+
+function hidePopup(){
+ clearInterval(popupCountdown);
+ popup.classList.add("hide");
+}
+let seconds=6;
+const popupCountdown=setInterval(()=>{
+ seconds--;
+ if(seconds<=0){hidePopup();return}
+ timerText.textContent="Continuing in "+seconds+" seconds…";
+},1000);
+document.getElementById("flappyLink").addEventListener("click",e=>{
+ e.preventDefault();
+ hidePopup();
+});
+
+function resizeCanvas(){
+ const dpr=Math.min(window.devicePixelRatio||1,2);
+ const rect=canvas.getBoundingClientRect();
+ canvas.width=Math.round(rect.width*dpr);
+ canvas.height=Math.round(rect.height*dpr);
+ scaleX=rect.width/360;
+ scaleY=rect.height/640;
+ ctx.setTransform(dpr*scaleX,0,0,dpr*scaleY,0,0);
+ draw();
+}
+window.addEventListener("resize",resizeCanvas);
+
+function bestKey(){return "n99-flappy-best-"+username.toLowerCase()}
+function setFullscreen(){
+ if(!document.fullscreenElement&&document.documentElement.requestFullscreen){
+  document.documentElement.requestFullscreen().catch(()=>{});
+ }
+}
+document.getElementById("fullBtn").addEventListener("click",()=>{
+ if(!document.fullscreenElement)setFullscreen();
+ else if(document.exitFullscreen)document.exitFullscreen().catch(()=>{});
+});
+
+loginForm.addEventListener("submit",e=>{
+ e.preventDefault();
+ username=usernameInput.value.trim();
+ if(!username){usernameInput.focus();return}
+ best=Number(localStorage.getItem(bestKey())||0);
+ bestEl.textContent=best;
+ login.style.display="none";
+ gameScreen.style.display="block";
+ setFullscreen();
+ resizeCanvas();
+ resetGame();
+ showPanel("READY?","Tap to fly. Avoid the neon pipes!","PLAY");
+});
+
+function showPanel(title,text,button){
+ panelTitle.textContent=title;
+ panelText.textContent=text;
+ playBtn.textContent=button;
+ overlay.classList.remove("hidden");
+}
+function hidePanel(){overlay.classList.add("hidden")}
+
+function resetGame(){
+ score=0;
+ scoreEl.textContent="0";
+ bird={x:90,y:logicalH*.46,vy:0};
+ pipes=[];
+ frame=0;
+ let startX=logicalW+70;
+ for(let i=0;i<3;i++){
+  pipes.push({x:startX+i*PIPE_SPACING,gapY:150+Math.random()*300,passed:false});
+ }
+ state="ready";
+ draw();
+}
+
+function startGame(){
+ if(state==="playing")return;
+ resetGame();
+ state="playing";
+ hidePanel();
+ hint.textContent="TAP ANYWHERE TO FLY";
+ bird.vy=FLAP;
+ lastTime=performance.now();
+ cancelAnimationFrame(animationId);
+ animationId=requestAnimationFrame(loop);
+}
+
+function flap(){
+ if(state==="ready"){startGame();return}
+ if(state==="over")return;
+ if(state==="playing")bird.vy=FLAP;
+}
+
+playBtn.addEventListener("click",()=>{
+ if(state==="over"||state==="ready")startGame();
+});
+
+canvas.addEventListener("pointerdown",e=>{
+ e.preventDefault();
+ flap();
+});
+
+document.addEventListener("keydown",e=>{
+ if(e.code==="Space"||e.code==="ArrowUp"){
+  if(gameScreen.style.display==="block"){
+   e.preventDefault();
+   flap();
+  }
+ }
+});
+
+function loop(now){
+ if(state!=="playing")return;
+ const dt=Math.min((now-lastTime)/16.67,2.2);
+ lastTime=now;
+ update(dt);
+ draw();
+ if(state==="playing")animationId=requestAnimationFrame(loop);
+}
+
+function update(dt){
+ frame+=dt;
+ bird.vy+=GRAVITY*dt;
+ bird.y+=bird.vy*dt;
+
+ const speed=2.5+Math.min(score*.025,1.5);
+ pipes.forEach(pipe=>{
+  pipe.x-=speed*dt;
+
+  if(!pipe.passed&&pipe.x+PIPE_WIDTH<bird.x){
+   pipe.passed=true;
+   score++;
+   scoreEl.textContent=score;
+   if(score>best){
+    best=score;
+    bestEl.textContent=best;
+    localStorage.setItem(bestKey(),String(best));
+   }
+  }
+ });
+
+ if(pipes.length&&pipes[0].x+PIPE_WIDTH< -5){
+  pipes.shift();
+  const last=pipes[pipes.length-1];
+  pipes.push({
+   x:last.x+PIPE_SPACING,
+   gapY:100+Math.random()*330,
+   passed:false
+  });
+ }
+
+ if(bird.y-BIRD_SIZE/2<0||bird.y+BIRD_SIZE/2>logicalH-12){
+  endGame();return;
+ }
+
+ for(const pipe of pipes){
+  const bx=bird.x,by=bird.y,r=BIRD_SIZE*.38;
+  const overlaps=bx+r>pipe.x&&bx-r<pipe.x+PIPE_WIDTH;
+  if(overlaps&&(by-r<pipe.gapY-PIPE_GAP/2||by+r>pipe.gapY+PIPE_GAP/2)){
+   endGame();return;
+  }
+ }
+}
+
+function endGame(){
+ state="over";
+ cancelAnimationFrame(animationId);
+ hint.textContent="TAP PLAY AGAIN TO RETRY";
+ showPanel("GAME OVER",""+username+", your score: "+score+" · Best: "+best,"PLAY AGAIN");
+}
+
+function drawBackground(){
+ ctx.fillStyle="#030906";
+ ctx.fillRect(0,0,360,640);
+
+ const glow=ctx.createRadialGradient(180,170,10,180,170,470);
+ glow.addColorStop(0,"rgba(19,91,44,.35)");
+ glow.addColorStop(1,"rgba(0,0,0,0)");
+ ctx.fillStyle=glow;
+ ctx.fillRect(0,0,360,640);
+
+ ctx.strokeStyle="rgba(67,255,120,.07)";
+ ctx.lineWidth=1;
+ for(let x=0;x<360;x+=30){
+  ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,640);ctx.stroke();
+ }
+ for(let y=0;y<640;y+=30){
+  ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(360,y);ctx.stroke();
+ }
+
+ // Pixel stars
+ for(let i=0;i<32;i++){
+  const x=(i*71+23)%360;
+  const y=(i*113+frame*.25)%610;
+  ctx.fillStyle="rgba(112,255,150,.45)";
+  ctx.fillRect(x,y,2,2);
+ }
+}
+
+function drawPipe(pipe){
+ const topEnd=pipe.gapY-PIPE_GAP/2;
+ const bottomStart=pipe.gapY+PIPE_GAP/2;
+
+ ctx.shadowColor="#20ff6b";
+ ctx.shadowBlur=12;
+ ctx.fillStyle="#0b7b36";
+ ctx.fillRect(pipe.x,0,PIPE_WIDTH,topEnd);
+ ctx.fillRect(pipe.x,bottomStart,PIPE_WIDTH,640-bottomStart-12);
+
+ ctx.fillStyle="#22e85e";
+ ctx.fillRect(pipe.x+5,0,8,topEnd);
+ ctx.fillRect(pipe.x+5,bottomStart,8,640-bottomStart-12);
+
+ ctx.fillStyle="#42ff7b";
+ ctx.fillRect(pipe.x-5,topEnd-14,PIPE_WIDTH+10,14);
+ ctx.fillRect(pipe.x-5,bottomStart,PIPE_WIDTH+10,14);
+
+ ctx.fillStyle="#11652f";
+ ctx.fillRect(pipe.x+PIPE_WIDTH-9,0,5,topEnd-14);
+ ctx.fillRect(pipe.x+PIPE_WIDTH-9,bottomStart+14,5,640-bottomStart-26);
+ ctx.shadowBlur=0;
+}
+
+function drawBird(){
+ const x=bird.x,y=bird.y;
+ const flapOffset=state==="playing"&&Math.sin(frame*.8)>0?2:0;
+
+ ctx.save();
+ ctx.translate(x,y);
+ ctx.rotate(Math.max(-.45,Math.min(.7,bird.vy*.06)));
+
+ // Neon pixel body
+ ctx.shadowColor="#43ff79";
+ ctx.shadowBlur=13;
+ ctx.fillStyle="#43ff79";
+ ctx.fillRect(-12,-10,22,20);
+ ctx.fillRect(-7,-14,14,28);
+
+ // Pixel wing
+ ctx.fillStyle="#19b94f";
+ ctx.fillRect(-11,-2+flapOffset,10,9);
+ ctx.fillRect(-7,5+flapOffset,8,4);
+
+ // Eye
+ ctx.shadowBlur=0;
+ ctx.fillStyle="#dffff0";
+ ctx.fillRect(2,-8,8,8);
+ ctx.fillStyle="#031409";
+ ctx.fillRect(6,-6,4,5);
+
+ // Beak
+ ctx.fillStyle="#c5ff54";
+ ctx.fillRect(10,-1,9,6);
+ ctx.fillRect(14,5,5,3);
+
+ // Pixel tail
+ ctx.fillStyle="#2bc95c";
+ ctx.fillRect(-17,-3,5,7);
+ ctx.restore();
+}
+
+function drawGround(){
+ ctx.fillStyle="#0a2915";
+ ctx.fillRect(0,logicalH-12,360,12);
+ ctx.fillStyle="#40ff78";
+ ctx.fillRect(0,logicalH-12,360,3);
+ for(let x=0;x<360;x+=20){
+  ctx.fillStyle="#1a6330";
+  ctx.fillRect(x,logicalH-7,10,3);
+ }
+}
+
+function draw(){
+ if(!ctx)return;
+ ctx.save();
+ ctx.setTransform(ctx.getTransform().a,0,0,ctx.getTransform().d,0,0);
+ drawBackground();
+ pipes.forEach(drawPipe);
+ drawBird();
+ drawGround();
+ ctx.restore();
+}
+
+/* Initial canvas drawing and resizing */
+resizeCanvas();
+</script>
+</body>
+</html>
+
